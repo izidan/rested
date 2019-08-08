@@ -3,6 +3,7 @@
   "description": "{REST}ed; {REST}ful Enterprise Data-as-a-Service (DaaS)",
   "author": {
     "name": "Zidan, M",
+    "email": "798776+izidan@users.noreply.github.com",
     "url": "https://github.com/izidan"
   },
   "homepage": "https://github.com/izidan/rested",
@@ -16,6 +17,7 @@
     "url": "https://github.com/izidan/rested.git"
   },
   "bugs": {
+    "email": "798776+izidan@users.noreply.github.com",
     "url": "https://github.com/izidan/rested/issues/new"
   },
   "publishConfig": {
@@ -23,17 +25,20 @@
   },
   "license": "MIT",
   "keywords": [
-    "REST",
-    "RESTful",
-    "API",
+    "daas",
+    "rest",
+    "restful",
+    "api",
     "express",
     "mongoose",
+    "baucis",
+    "swagger",
+    "openapi",
     "schema",
     "schemata",
     "model",
-    "mde",
     "mongo",
-    "rfc2616",
+    "mongodb",
     "web",
     "http"
   ],
