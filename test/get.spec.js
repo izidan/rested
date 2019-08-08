@@ -1,13 +1,13 @@
-const { vegetable } = require('./fixtures');
+const fixtures = require('./fixtures/vegetable');
 
 describe('GET singular', () => {
-  beforeAll(vegetable.init);
-  afterAll(vegetable.deinit);
-  beforeEach(vegetable.create);
-  const request = () => require('supertest')(vegetable.app());
+  beforeAll(fixtures.init);
+  afterAll(fixtures.deinit);
+  beforeEach(fixtures.create);
+  const request = () => require('supertest')(fixtures.app());
 
   it('should get the addressed document', () => {
-    let turnip = vegetable.vegetables[0];
+    let turnip = fixtures.vegetables[0];
     return request().get('/api/vegetables/' + turnip._id)
       .expect(200)
       .then(({ body }) => {

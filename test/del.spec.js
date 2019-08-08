@@ -1,13 +1,13 @@
-const { vegetable } = require('./fixtures');
+const fixture = require('./fixtures/vegetable');
 
 describe('DELETE singular', () => {
-  beforeAll(vegetable.init);
-  afterAll(vegetable.deinit);
-  beforeEach(vegetable.create);
-  const request = () => require('supertest')(vegetable.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it('should delete the addressed document', () => {
-    let shitake = vegetable.vegetables[3];
+    let shitake = fixture.vegetables[3];
     return request().del('/api/vegetables/' + shitake._id)
       .expect('Content-Type', /json/)
       .expect(200) // count of deleted objects
@@ -22,9 +22,9 @@ describe('DELETE singular', () => {
   });
 
   it('should invoke "remove" middleware', () => {
-    let shitake = vegetable.vegetables[3];
+    let shitake = fixture.vegetables[3];
     return request().del('/api/vegetables/' + shitake._id)
-      .then(() => expect(vegetable).toHaveProperty('removeCount', 1))
+      .then(() => expect(fixture).toHaveProperty('removeCount', 1))
   });
 
 });

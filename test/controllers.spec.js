@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const baucis = require('..');
-const { controller } = require('./fixtures');
+const fixture = require('./fixtures/controller');
 
 describe('Controllers', () => {
-  beforeAll(controller.init);
-  afterAll(controller.deinit);
-  beforeEach(controller.create);
-  const request = () => require('supertest')(controller.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it('should allow passing string name to create', () => {
     let makeController = () => baucis.Controller('unmade');
@@ -409,17 +409,15 @@ describe('Controllers', () => {
           .expect(422)
           .then(({ body }) => {
             expect(body).toHaveLength(1);
-            expect(body[0]).toHaveProperty('name');
-            expect(body[0]).toHaveProperty('message', 'Path `name` (Gorgonzola) must be unique.');
-            expect(body[0]).toHaveProperty('path', 'name');
-            expect(body[0]).toHaveProperty('originalMessage');
-            expect(body[0].originalMessage).toMatch(/E11000 duplicate key/);
-            expect(body[0].originalMessage).toMatch(/dup key/);
-            expect(body[0].originalMessage).toMatch(/test\.cheeses\s.*?\sname_1/);
-            expect(body[0]).toHaveProperty('name', 'MongoError');
-            expect(body[0]).toHaveProperty('path', 'name');
             expect(body[0]).toHaveProperty('type', 'unique');
+            expect(body[0]).toHaveProperty('name', 'MongoError');
             expect(body[0]).toHaveProperty('value', 'Gorgonzola');
+            expect(body[0]).toHaveProperty('path', 'name', '???');
+            expect(body[0]).toHaveProperty('message', 'Path `name` (Gorgonzola) must be unique.', 'Path `???` (Gorgonzola) must be unique.');
+            expect(body[0]).toHaveProperty('originalMessage');
+            expect(body[0].originalMessage).toMatch(/dup key/);
+            expect(body[0].originalMessage).toMatch(/"Gorgonzola"/);
+            expect(body[0].originalMessage).toMatch(/E11000 duplicate key/);
           })
       ));
 

@@ -1,7 +1,7 @@
+require('mongodb');
 const mongoose = require('mongoose');
 const express = require('express');
 const baucis = require('../..');
-const config = require('./config');
 
 let app;
 let server;
@@ -22,7 +22,7 @@ module.exports = {
   server: () => server,
   deinit: done => Promise.all([server.close(), mongoose.disconnect()]).then(done),
   init: done => {
-    mongoose.connect(config.mongo.url);
+    mongoose.connect(global.__MONGO_URI__);
 
     let users = baucis.rest('user');
     let tasks = users.vivify('tasks');

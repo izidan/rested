@@ -1,10 +1,10 @@
-const { vegetable } = require('./fixtures');
+const fixture = require('./fixtures/vegetable');
 
 describe('GET plural', () => {
-  beforeAll(vegetable.init);
-  afterAll(vegetable.deinit);
-  beforeEach(vegetable.create);
-  const request = () => require('supertest')(vegetable.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it("should return 'em all", () =>
     request().get('/api/vegetables')
@@ -13,7 +13,7 @@ describe('GET plural', () => {
       .then(({ body }) => {
         expect(body).toHaveLength(8);
         body.forEach((doc, i) => {
-          let found = vegetable.vegetables.some(vege => vege._id.toString() === doc._id);
+          let found = fixture.vegetables.some(vege => vege._id.toString() === doc._id);
           expect(found).toBe(true);
         });
       }));
@@ -26,7 +26,7 @@ describe('GET plural', () => {
       .then(({ body }) => {
         expect(body).toHaveLength(1);
         body.forEach((doc, i) => {
-          let found = vegetable.vegetables.some(vege => vege._id.toString() === doc._id);
+          let found = fixture.vegetables.some(vege => vege._id.toString() === doc._id);
           expect(found).toBe(true);
         });
       }));

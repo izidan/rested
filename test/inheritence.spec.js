@@ -1,10 +1,10 @@
-const { inheritence } = require('./fixtures');
+const fixture = require('./fixtures/inheritence');
 
 describe('Inheritence', () => {
-  beforeAll(inheritence.init);
-  afterAll(inheritence.deinit);
-  beforeEach(inheritence.create);
-  const request = () => require('supertest')(inheritence.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it('should return all documents for parent model controller', () =>
     request().get('/api/liqueurs')

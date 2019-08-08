@@ -32,10 +32,10 @@ module.exports = function (options, protect) {
     if (!error.message) return next(error);
     if (error.message.indexOf('E11000 duplicate key error') === -1) return next(error);
     let body = {};
-    let scrape = /([^\s]+)[_]\d+\s+dup key: [{] : "([^"]+)" [}]/;
-    let scraped = scrape.exec(error.message);
-    let path = scraped ? scraped[1] : '???';
-    let value = scraped ? scraped[2] : '???';
+    let scrape = /(?:([^\s]+)[_]\d+)?\s+dup key: { : "([^"]+)" }/;
+    let scraped = scrape.exec(error.message) || [];
+    let path = scraped[1] || '???';
+    let value = scraped[2] || '???';
     body[path] = {
       message: `Path \`${path}\` (${value}) must be unique.`,
       originalMessage: error.message,

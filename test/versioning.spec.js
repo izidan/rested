@@ -1,11 +1,11 @@
 const baucis = require('..');
-const { versioning } = require('./fixtures');
+const fixture = require('./fixtures/versioning');
 
 describe('Versioning', () => {
-  beforeAll(versioning.init);
-  afterAll(versioning.deinit);
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
   beforeEach(baucis.empty.bind(baucis));
-  const request = () => require('supertest')(versioning.app());
+  const request = () => require('supertest')(fixture.app());
 
   it('should use the highest release if no request version is specified', () =>
     request().get('/api/versioned/parties')

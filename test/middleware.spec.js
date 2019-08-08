@@ -1,26 +1,26 @@
-const { vegetable } = require('./fixtures');
+const fixture = require('./fixtures/vegetable');
 
 describe('Middleware', () => {
-  beforeAll(vegetable.init);
-  afterAll(vegetable.deinit);
-  beforeEach(vegetable.create);
-  const request = () => require('supertest')(vegetable.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it('should prevent resource from being loaded when block is set', () =>
-    request().get('/api/vegetables/' + vegetable.vegetables[0]._id)
+    request().get('/api/vegetables/' + fixture.vegetables[0]._id)
       .query({ block: true })
       .expect(401)
   );
 
   it('should allow resource to be loaded when block is not set', () =>
-    request().get('/api/vegetables/' + vegetable.vegetables[0]._id)
+    request().get('/api/vegetables/' + fixture.vegetables[0]._id)
       .query({ block: false })
       .expect(200)
       .then(({ body }) => expect(body).toHaveProperty('name', 'Turnip'))
   );
 
   it('should allow query middleware to alter query', () =>
-    request().get('/api/vegetables/' + vegetable.vegetables[0]._id)
+    request().get('/api/vegetables/' + fixture.vegetables[0]._id)
       .query({ testQuery: true })
       .expect(200)
       .then(({ body }) => {
@@ -41,7 +41,7 @@ describe('Middleware', () => {
   );
 
   it('should allow custom stream handlers (IN/PUT)', () => {
-    let radicchio = vegetable.vegetables[7];
+    let radicchio = fixture.vegetables[7];
     return request().put('/api/vegetables/' + radicchio._id)
       .query({ streamIn: true })
       .send({ name: 'zoom' })
@@ -72,7 +72,7 @@ describe('Middleware', () => {
   );
 
   it('should handle errors in user streams (IN/PUT)', () => {
-    let radicchio = vegetable.vegetables[7];
+    let radicchio = fixture.vegetables[7];
     return request().put('/api/vegetables/' + radicchio._id)
       .query({ failIt: true })
       .send({ name: 'zoom' })

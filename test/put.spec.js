@@ -1,13 +1,13 @@
-const { vegetable } = require('./fixtures');
+const fixture = require('./fixtures/vegetable');
 
 describe('PUT singular', () => {
-  beforeAll(vegetable.init);
-  afterAll(vegetable.deinit);
-  beforeEach(vegetable.create);
-  const request = () => require('supertest')(vegetable.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it("should replace the addressed object if it exists", () => {
-    let radicchio = vegetable.vegetables[7];
+    let radicchio = fixture.vegetables[7];
     return request().get('/api/vegetables/' + radicchio._id)
       .expect(200)
       .then(({ body }) => {
@@ -26,7 +26,7 @@ describe('PUT singular', () => {
   });
 
   it("should 422 on no document", () => {
-    let radicchio = vegetable.vegetables[7];
+    let radicchio = fixture.vegetables[7];
     return request().get('/api/vegetables/' + radicchio._id)
       .expect(200)
       .then(({ body }) => {
@@ -38,7 +38,7 @@ describe('PUT singular', () => {
   });
 
   it("should 422 on multiple documents", () => {
-    let radicchio = vegetable.vegetables[7];
+    let radicchio = fixture.vegetables[7];
     return request().get('/api/vegetables/' + radicchio._id)
       .expect(200)
       .then(({ body }) => {
@@ -70,11 +70,11 @@ describe('PUT singular', () => {
   });
 
   it('should fire pre save Mongoose middleware', () => {
-    vegetable.saveCount = 0;
-    let radicchio = vegetable.vegetables[7];
+    fixture.saveCount = 0;
+    let radicchio = fixture.vegetables[7];
     return request().put('/api/vegetables/' + radicchio._id)
       .send({ name: 'Radicchio di Treviso' })
-      .then(() => expect(vegetable.saveCount).toBe(1))
+      .then(() => expect(fixture.saveCount).toBe(1))
   });
 
   //it('should allow running validation with methods that currently bypass validation ... maybe');

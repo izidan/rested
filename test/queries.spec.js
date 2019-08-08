@@ -1,22 +1,22 @@
 const parselinks = require('parse-link-header');
-const { vegetable } = require('./fixtures');
+const fixture = require('./fixtures/vegetable');
 
 describe('Queries', () => {
-  beforeAll(vegetable.init);
-  afterAll(vegetable.deinit);
-  beforeEach(vegetable.create);
-  const request = () => require('supertest')(vegetable.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it('should support skip 1', () =>
     request().get('/api/vegetables?skip=1')
       .expect(200)
-      .then(({ body }) => expect(body).toHaveLength(vegetable.vegetables.length - 1))
+      .then(({ body }) => expect(body).toHaveLength(fixture.vegetables.length - 1))
   );
 
   it('should support skip 2', () =>
     request().get('/api/vegetables?skip=2')
       .expect(200)
-      .then(({ body }) => expect(body).toHaveLength(vegetable.vegetables.length - 2))
+      .then(({ body }) => expect(body).toHaveLength(fixture.vegetables.length - 2))
   );
 
   it('should support limit 1', () =>
@@ -86,7 +86,7 @@ describe('Queries', () => {
   );
 
   it('allows populating children', () =>
-    request().get('/api/vegetables/' + vegetable.vegetables[0]._id + '/?populate=nutrients')
+    request().get('/api/vegetables/' + fixture.vegetables[0]._id + '/?populate=nutrients')
       .expect(200)
       .then(({ body }) => {
         expect(body).toHaveProperty('nutrients');
@@ -96,7 +96,7 @@ describe('Queries', () => {
   );
 
   it('allows query by Id', () =>
-    request().get('/api/vegetables/' + vegetable.vegetables[0]._id)
+    request().get('/api/vegetables/' + fixture.vegetables[0]._id)
       .expect(200)
       .then(({ body }) => expect(body).toHaveProperty('name', 'Turnip'))
   );

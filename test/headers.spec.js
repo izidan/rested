@@ -1,13 +1,13 @@
-const { vegetable } = require('./fixtures');
+const fixture = require('./fixtures/vegetable');
 
 describe('Headers', () => {
-  beforeAll(vegetable.init);
-  afterAll(vegetable.deinit);
-  beforeEach(vegetable.create);
-  const request = () => require('supertest')(vegetable.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it('sets Last-Modified for single documents', () => {
-    let turnip = vegetable.vegetables[0];
+    let turnip = fixture.vegetables[0];
     return request().head('/api/vegetables/' + turnip._id)
       .expect(200)
       .then(({ headers }) => {
@@ -21,7 +21,7 @@ describe('Headers', () => {
   });
 
   it('sets Last-Modified for the collection', () => {
-    let updates = vegetable.vegetables.map(vege => vege.lastModified);
+    let updates = fixture.vegetables.map(vege => vege.lastModified);
     let max = new Date(Math.max.apply(null, updates));
     let httpDate = new Date(max).toUTCString();
     return request().head('/api/vegetables')
@@ -39,7 +39,7 @@ describe('Headers', () => {
   });
 
   it('sets Etag for single documents', () => {
-    let turnip = vegetable.vegetables[0];
+    let turnip = fixture.vegetables[0];
     return request().head('/api/vegetables/' + turnip._id)
       .expect(200)
       .expect('etag', /^"[0-9a-z]{32}"$/)

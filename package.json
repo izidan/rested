@@ -7,10 +7,10 @@
     "url": "https://github.com/izidan"
   },
   "homepage": "https://github.com/izidan/rested",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "scripts": {
-    "test": "./node_modules/.bin/jest --env=node --bail --runInBand",
-    "coverage": "./node_modules/.bin/jest --env=node --bail --runInBand --coverage"
+    "test": "./node_modules/.bin/jest --runInBand",
+    "coverage": "./node_modules/.bin/jest --runInBand --coverage"
   },
   "repository": {
     "type": "git",
@@ -57,6 +57,7 @@
     "express": ">=4"
   },
   "devDependencies": {
+    "@shelf/jest-mongodb": "^1.1.0",
     "async": "^3.1.0",
     "body-parser": "^1.19.0",
     "jest": "^24.8.0",

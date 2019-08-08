@@ -1,11 +1,11 @@
 // __Dependencies__
+require('mongodb');
 const mongoose = require('mongoose');
 const express = require('express');
 const bodyParser = require('body-parser');
 const async = require('async');
 const es = require('event-stream');
 const baucis = require('../..');
-const config = require('./config');
 
 // __Private Module Members__
 let app;
@@ -61,7 +61,7 @@ const fixture = module.exports = {
   server: () => server,
   deinit: done => Promise.all([server.close(), mongoose.disconnect()]).then(done),
   init: done => {
-    mongoose.connect(config.mongo.url);
+    mongoose.connect(global.__MONGO_URI__);
 
     fixture.saveCount = 0;
     fixture.removeCount = 0;

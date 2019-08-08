@@ -1,13 +1,13 @@
-const { vegetable } = require('./fixtures');
+const fixture = require('./fixtures/vegetable');
 
 describe('HEAD singular', () => {
-  beforeAll(vegetable.init);
-  afterAll(vegetable.deinit);
-  beforeEach(vegetable.create);
-  const request = () => require('supertest')(vegetable.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it('should get the header for the addressed document', () =>
-    request().head('/api/vegetables/' + vegetable.vegetables[0]._id)
+    request().head('/api/vegetables/' + fixture.vegetables[0]._id)
       .expect(200, undefined)
   );
 

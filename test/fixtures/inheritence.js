@@ -1,10 +1,10 @@
 // __Dependencies__
+require('mongodb');
 const mongoose = require('mongoose');
 const express = require('express');
 const deco = require('deco');
 const async = require('async');
 const baucis = require('../..');
-const config = require('./config');
 
 // __Private Module Members__
 let app;
@@ -31,7 +31,7 @@ module.exports = {
   server: () => server,
   deinit: done => Promise.all([server.close(), mongoose.disconnect()]).then(done),
   init: done => {
-    mongoose.connect(config.mongo.url);
+    mongoose.connect(global.__MONGO_URI__);
 
     baucis.rest(Liqueur);
     baucis.rest(Amaro);

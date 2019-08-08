@@ -1,10 +1,10 @@
-const { vegetable } = require('./fixtures');
+const fixture = require('./fixtures/vegetable');
 
 describe('DEL plural', () => {
-  beforeAll(vegetable.init);
-  afterAll(vegetable.deinit);
-  beforeEach(vegetable.create);
-  const request = () => require('supertest')(vegetable.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it('should delete all documents in addressed collection', () =>
     request().del('/api/vegetables/')
@@ -16,6 +16,6 @@ describe('DEL plural', () => {
 
   it('should invoke "remove" middleware', () =>
     request().del('/api/vegetables/')
-      .then(() => expect(vegetable).toHaveProperty('removeCount', 8))
+      .then(() => expect(fixture).toHaveProperty('removeCount', 8))
   );
 });

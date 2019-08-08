@@ -1,10 +1,10 @@
-const { vegetable } = require('./fixtures');
+const fixture = require('./fixtures/vegetable');
 
 describe('POST plural', () => {
-  beforeAll(vegetable.init);
-  afterAll(vegetable.deinit);
-  beforeEach(vegetable.create);
-  const request = () => require('supertest')(vegetable.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it('should create a new object and return its ID', () =>
     request().post('/api/vegetables/')
@@ -55,10 +55,10 @@ describe('POST plural', () => {
 
 
   it('should fire pre save Mongoose middleware', () => {
-    vegetable.saveCount = 0;
+    fixture.saveCount = 0;
     return request().post('/api/vegetables/')
       .send({ name: 'Ground Cherry' })
-      .then(() => expect(vegetable.saveCount).toBe(1));
+      .then(() => expect(fixture.saveCount).toBe(1));
   });
 
   it('should provide correct status and informative body for validation errors', () =>

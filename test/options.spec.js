@@ -1,10 +1,10 @@
-const { vegetable } = require('./fixtures');
+const fixture = require('./fixtures/vegetable');
 
 describe.skip('OPTIONS instance/collection', () => {
-  beforeAll(vegetable.init);
-  afterAll(vegetable.deinit);
-  beforeEach(vegetable.create);
-  const request = () => require('supertest')(vegetable.app());
+  beforeAll(fixture.init);
+  afterAll(fixture.deinit);
+  beforeEach(fixture.create);
+  const request = () => require('supertest')(fixture.app());
 
   it('provides options for the collection', () =>
     request().options('/api/vegetables/')
@@ -19,7 +19,7 @@ describe.skip('OPTIONS instance/collection', () => {
   );
 
   it('provides options for the instance', () =>
-    request().options('/api/vegetables/' + vegetable.vegetables[3]._id)
+    request().options('/api/vegetables/' + fixture.vegetables[3]._id)
       .expect(200, 'HEAD,GET,POST,PUT,DELETE')
       .then(({ headers }) => {
         expect(headers).toHaveProperty('vary', 'Accept-Version');
