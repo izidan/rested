@@ -1,10 +1,11 @@
+const supertest = require('supertest');
 const fixture = require('./fixtures/vegetable');
 
 describe('HEAD singular', () => {
   beforeAll(fixture.init);
   afterAll(fixture.deinit);
   beforeEach(fixture.create);
-  const request = () => require('supertest')(fixture.app());
+  const request = () => supertest(fixture.app());
 
   it('should get the header for the addressed document', () =>
     request().head('/api/vegetables/' + fixture.vegetables[0]._id)

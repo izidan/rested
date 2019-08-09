@@ -1,3 +1,4 @@
+const supertest = require('supertest');
 const mongoose = require('mongoose');
 const baucis = require('..');
 const fixture = require('./fixtures/controller');
@@ -6,7 +7,7 @@ describe('Controllers', () => {
   beforeAll(fixture.init);
   afterAll(fixture.deinit);
   beforeEach(fixture.create);
-  const request = () => require('supertest')(fixture.app());
+  const request = () => supertest(fixture.app());
 
   it('should allow passing string name to create', () => {
     let makeController = () => baucis.Controller('unmade');

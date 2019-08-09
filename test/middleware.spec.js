@@ -1,10 +1,11 @@
+const supertest = require('supertest');
 const fixture = require('./fixtures/vegetable');
 
 describe('Middleware', () => {
   beforeAll(fixture.init);
   afterAll(fixture.deinit);
   beforeEach(fixture.create);
-  const request = () => require('supertest')(fixture.app());
+  const request = () => supertest(fixture.app());
 
   it('should prevent resource from being loaded when block is set', () =>
     request().get('/api/vegetables/' + fixture.vegetables[0]._id)

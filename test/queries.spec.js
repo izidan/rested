@@ -1,3 +1,4 @@
+const supertest = require('supertest');
 const parselinks = require('parse-link-header');
 const fixture = require('./fixtures/vegetable');
 
@@ -5,7 +6,7 @@ describe('Queries', () => {
   beforeAll(fixture.init);
   afterAll(fixture.deinit);
   beforeEach(fixture.create);
-  const request = () => require('supertest')(fixture.app());
+  const request = () => supertest(fixture.app());
 
   it('should support skip 1', () =>
     request().get('/api/vegetables?skip=1')

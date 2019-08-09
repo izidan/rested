@@ -1,10 +1,11 @@
+const supertest = require('supertest');
 const fixture = require('./fixtures/vegetable');
 
 describe('POST plural', () => {
   beforeAll(fixture.init);
   afterAll(fixture.deinit);
   beforeEach(fixture.create);
-  const request = () => require('supertest')(fixture.app());
+  const request = () => supertest(fixture.app());
 
   it('should create a new object and return its ID', () =>
     request().post('/api/vegetables/')

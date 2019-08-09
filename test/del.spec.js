@@ -1,10 +1,11 @@
+const supertest = require('supertest');
 const fixture = require('./fixtures/vegetable');
 
 describe('DELETE singular', () => {
   beforeAll(fixture.init);
   afterAll(fixture.deinit);
   beforeEach(fixture.create);
-  const request = () => require('supertest')(fixture.app());
+  const request = () => supertest(fixture.app());
 
   it('should delete the addressed document', () => {
     let shitake = fixture.vegetables[3];

@@ -1,10 +1,11 @@
+const supertest = require('supertest');
 const fixture = require('./fixtures/vegetable');
 
 describe('GET plural', () => {
   beforeAll(fixture.init);
   afterAll(fixture.deinit);
   beforeEach(fixture.create);
-  const request = () => require('supertest')(fixture.app());
+  const request = () => supertest(fixture.app());
 
   it("should return 'em all", () =>
     request().get('/api/vegetables')
