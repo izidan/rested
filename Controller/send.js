@@ -1,8 +1,7 @@
-// __Dependencies__
 const es = require('event-stream');
 const crypto = require('crypto');
 const RestError = require('rest-error');
-// __Private Module Members__
+
 // Format the Trailer header.
 const addTrailer = (response, header) => {
   let current = response.get('Trailer');
@@ -72,19 +71,20 @@ const reduce = (accumulated, f) =>
 // Count emissions.
 const count = () => reduce(0, a => ++a);
 
-
-// __Module Definition__
 module.exports = function (options, protect) {
   const baucis = require('..');
   const lastModifiedPath = this.model().lastModified();
   // If counting get the count and send it back directly.
   protect.finalize((request, response, next) => {
     if (!request.baucis.count) return next();
-    request.baucis.query.count((error, n) => {
+    let count = (error, n) => {
       if (error) return next(error);
       response.removeHeader('Transfer-Encoding');
-      return response.json(n); // TODO support other content types
-    });
+      response.json(n); // TODO support other content types
+    };
+    Array.isArray(request.baucis.documents) ?
+      count(null, request.baucis.documents.length) :
+      request.baucis.query.count(count);
   });
   // If not counting, create the basic stream pipeline.
   protect.finalize('collection', 'all', (request, response, next) => {
@@ -210,7 +210,7 @@ module.exports = function (options, protect) {
         (query.close || query.destroy || void 0)() : query.pause());
     stream.on('error', next);
     stream.pipe(es.through(
-      chunk => response.finished != true && response.write(chunk) == false ? query.pause() : null,
+      chunk => response.finished !== true && response.write(chunk) === false ? query.pause() : void 0,
       function () { response.end(); this.emit('end'); }));
   });
 };

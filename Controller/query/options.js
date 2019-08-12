@@ -37,7 +37,7 @@ module.exports = function () {
     let query = this.model().distinct(distinct, request.baucis.conditions);
     query.exec((error, values) => {
       if (error) return next(error);
-      request.baucis.documents = values;
+      request.baucis.documents = values.sort();
       next();
     });
   });

@@ -15,32 +15,65 @@ const parser = csv({
             value.match(/^\d{2}\/\d{2}\/\d{4}$/) ? new Date(value.split('/').reverse().join('-')) : value
 });
 
-describe('Controllers', () => {
+describe('Advanced', () => {
     beforeAll(fixture.init);
     afterAll(fixture.deinit);
     //beforeEach(fixture.create);
     const request = () => supertest(fixture.app());
 
-    it('should replace entire (or matched) collection with given new collection', done =>
+    it('should replace entire countries collection from csv', done =>
         request().del('/api/countries').then(({ statusCode }) => {
             let rows = [];
             expect(statusCode).toBeLessThanOrEqual(204);
             expect(statusCode).toBeGreaterThanOrEqual(200);
             fs.createReadStream('test/data/country-codes.csv').pipe(parser)
-                .on('data', row => row.isO31661Alpha3 ? rows.push(row) : console.warn(row))
+                .on('data', row => row.isO31661Alpha3 ? rows.push(row) : null)
                 .on('end', err => err ? done(err) : request().post('/api/countries').send(rows)
                     .expect(201).then(({ body }) => {
                         expect(body).toHaveLength(rows.length);
                         expect(body[0]).toHaveProperty('_id');
                         expect(body[0]._id).toMatch(/^[A-Z]{3}$/);
-                        console.log(body)
-                    }).catch(done).then(done)
+                        done();
+                    }).catch(done)
                 );
-            /*.on('data', row => !row.isO31661Alpha3 ? console.warn(row) :
-                request().post('/api/countries').send(row)//.expect(201)
-                    .then(({ body }) => console.log(body))
-            )
-            .on('end', done)*/
         })
     );
+
+    it('get distinct continents', () =>
+        request().get('/api/countries')
+            .query({ distinct: 'continent' })
+            .expect(200, ['AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA']))
+
+    it('count distinct continents', () =>
+        request().get('/api/countries').query({ distinct: 'continent', count: true })
+            .expect(200, '7'))
+
+    it('get distinct continents filtered by currency', () =>
+        request().get('/api/countries')
+            .query({ distinct: 'continent', conditions: { currency: 'USD' } })
+            .expect(200, ['AS', 'NA', 'OC', 'SA']))
+
+    it('cuont distinct continents filtered by currency', () =>
+        request().get('/api/countries')
+            .query({ distinct: 'continent', count: true, conditions: { currency: 'USD' } })
+            .expect(200, '4'))
+
+    it('get distinct continents including nulls', () =>
+        request().put('/api/countries/TWN')
+            .send({ continent: null })
+            .expect(200)
+            .then(() =>
+                request().get('/api/countries')
+                    .query({ distinct: 'continent' })
+                    .expect(200, [null, 'AS', 'EU', 'AF', 'OC', 'NA', 'AN', 'SA'])
+            )
+    );
+
+    it('count distinct continents including nulls', () =>
+        request().put('/api/countries/TWN')
+            .send({ continent: null })
+            .expect(200)
+            .then(() => request().get('/api/countries')
+                .query({ distinct: 'continent', count: true })
+                .expect(200, '8')));
 });

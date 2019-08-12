@@ -47,9 +47,9 @@ const Countries = new Schema({
         alpha3: { alias: 'isO31661Alpha3', type: String },
         numeric: { alias: 'isO31661Numeric', type: Number }
     },
-    currency: { type: String, alias: 'isO4217CurrencyAlphabeticCode' },
-    languages: String,
-    isIndependent: { type: Boolean, set: v => v === 'Yes' },
+    currency: { type: [String], alias: 'isO4217CurrencyAlphabeticCode', set: v => v.split(',') },
+    languages: { type: [String], set: v => v.split(',') },
+    independent: { type: Boolean, alias: 'isIndependent', set: v => v === 'Yes' },
     region: {
         code: { type: Number, alias: 'regionCode' },
         name: { type: String, alias: 'regionName' },
