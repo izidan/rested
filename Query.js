@@ -1,6 +1,6 @@
 const mquery = require('mquery');
-const utils = require('mongoose/lib/utils');
 const { Query } = require('mongoose');
+const utils = require('mongoose/lib/utils');
 
 Query.prototype.count = function (filter, callback) {
     if (typeof filter === 'function') {

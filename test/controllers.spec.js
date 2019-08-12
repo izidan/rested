@@ -409,16 +409,15 @@ describe('Controllers', () => {
           .send({ name: 'Gorgonzola', color: 'Green' })
           .expect(422)
           .then(({ body }) => {
-            expect(body).toHaveLength(1);
-            expect(body[0]).toHaveProperty('type', 'unique');
-            expect(body[0]).toHaveProperty('name', 'MongoError');
-            expect(body[0]).toHaveProperty('value', 'Gorgonzola');
-            expect(body[0]).toHaveProperty('path', 'name', '???');
-            expect(body[0]).toHaveProperty('message', 'Path `name` (Gorgonzola) must be unique.', 'Path `???` (Gorgonzola) must be unique.');
-            expect(body[0]).toHaveProperty('originalMessage');
-            expect(body[0].originalMessage).toMatch(/dup key/);
-            expect(body[0].originalMessage).toMatch(/"Gorgonzola"/);
-            expect(body[0].originalMessage).toMatch(/E11000 duplicate key/);
+            expect(body).toHaveProperty('type', 'unique');
+            expect(body).toHaveProperty('name', 'MongoError');
+            expect(body).toHaveProperty('value', 'Gorgonzola');
+            expect(body).toHaveProperty('path', 'name', '???');
+            expect(body).toHaveProperty('message', 'Path `name` (Gorgonzola) must be unique.', 'Path `???` (Gorgonzola) must be unique.');
+            expect(body).toHaveProperty('originalMessage');
+            expect(body.originalMessage).toMatch(/dup key/);
+            expect(body.originalMessage).toMatch(/"Gorgonzola"/);
+            expect(body.originalMessage).toMatch(/E11000 duplicate key/);
           })
       ));
 

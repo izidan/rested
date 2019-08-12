@@ -34,7 +34,7 @@ describe('PUT singular', () => {
         expect(body).toHaveProperty('name', 'Radicchio');
         // put the leek on the server
         return request().put('/api/vegetables/' + radicchio._id)
-          .expect(422, [{ message: 'The request body did not contain an update document', name: 'RestError' }]);
+          .expect(422, { message: 'The request body did not contain an update document', name: 'RestError' });
       });
   });
 
@@ -47,7 +47,7 @@ describe('PUT singular', () => {
         // Put some veggies on the server.
         return request().put('/api/vegetables/' + radicchio._id)
           .send([{ name: 'Pea Shoot' }, { name: 'Bitter Melon' }])
-          .expect(422, [{ message: 'The request body contained more than one update document', name: 'RestError' }]);
+          .expect(422, { message: 'The request body contained more than one update document', name: 'RestError' });
       });
   });
 

@@ -1,10 +1,8 @@
-// __Dependencies__
 const es = require('event-stream');
+const through = require('through2');
 const domain = require('domain');
 
-// __Module Definition__
 module.exports = function (options, protect) {
-  // __Protected Module Members__
   // A utility method for ordering through streams.
   protect.pipeline = handler => {
     const streams = [];
@@ -28,10 +26,9 @@ module.exports = function (options, protect) {
       if (streams.length > 0)
         return d.run(() => es.pipeline.apply(es, streams));
       // But, if no streams were added, just pass back a through stream.
-      return d.run(es.through);
+      return d.run(through.obj);
     };
   };
-  // __Middleware__
   // Create the pipeline interface the user interacts with.
   this.request((request, response, next) => {
     request.baucis.incoming = protect.pipeline(next);

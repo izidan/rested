@@ -34,11 +34,10 @@ module.exports = function () {
     if (!distinct) return next();
     if (this.deselected(distinct))
       return next(RestError.Forbidden('You may not find distinct values for the requested path'));
-    let query = this.model().distinct(distinct, request.baucis.conditions);
-    query.exec((error, values) => {
-      if (error) return next(error);
-      request.baucis.documents = values.sort();
-      next();
+    this.model().distinct(distinct, request.baucis.conditions, (error, values) => {
+      if (!error)
+        request.baucis.documents = values;
+      next(error);
     });
   });
   // Apply controller sort options to the query.

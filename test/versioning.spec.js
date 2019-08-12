@@ -119,7 +119,7 @@ describe('Versioning', () => {
       .then(({ body }) =>
         request().put('/api/versioned/pumpkins/' + body[0]._id)
           .send({ title: 'Forest Expansion' })
-          .expect(422, [{ message: 'Locking is enabled, but the target version was not provided in the request body.', name: 'RestError', path: '__v' }])
+          .expect(422, { message: 'Locking is enabled, but the target version was not provided in the request body.', name: 'RestError', path: '__v' })
       ))
 
 });

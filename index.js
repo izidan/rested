@@ -1,7 +1,5 @@
 // __Dependencies__
-const deco = require('deco');
-const es = require('event-stream');
-const mongoose = require('mongoose');
+const through = require('through2');
 const Api = require('./Api');
 const Controller = require('./Controller');
 const Model = require('./Model');
@@ -30,13 +28,16 @@ baucis.empty = () => {
 
 baucis.formatters = (response, callback) => {
   if (response._headerSent)
-    return callback(null, () => es.through(console.trace, function () { this.emit('end') }));
+    return callback(null, () => through.obj(
+      function (ctx, enc, cb) { console.trace(ctx); this.emit('data', ctx); cb() },
+      function () { this.emit('end') }
+    ));
   let handlers = { default: () => callback(RestError.NotAcceptable()) };
   Object.keys(formatters).map(mime => handlers[mime] = formatters[mime](callback));
   response.format(handlers);
 };
 
-// Adds a formatter for the given mime type.  Needs a function that returns a stream.
+// Adds a formatter for the given mime type. Needs a function that returns a stream.
 baucis.setFormatter = (mime, f) => {
   formatters[mime] = callback => () => callback(null, f);
   return baucis;

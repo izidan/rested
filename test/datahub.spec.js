@@ -42,7 +42,7 @@ describe('Advanced', () => {
     it('get distinct continents', () =>
         request().get('/api/countries')
             .query({ distinct: 'continent' })
-            .expect(200, ['AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA']))
+            .expect(200, ['AS', 'EU', 'AF', 'OC', 'NA', 'AN', 'SA']))
 
     it('count distinct continents', () =>
         request().get('/api/countries').query({ distinct: 'continent', count: true })
@@ -51,7 +51,7 @@ describe('Advanced', () => {
     it('get distinct continents filtered by currency', () =>
         request().get('/api/countries')
             .query({ distinct: 'continent', conditions: { currency: 'USD' } })
-            .expect(200, ['AS', 'NA', 'OC', 'SA']))
+            .expect(200, ['OC', 'NA', 'AS', 'SA']))
 
     it('cuont distinct continents filtered by currency', () =>
         request().get('/api/countries')
@@ -65,9 +65,7 @@ describe('Advanced', () => {
             .then(() =>
                 request().get('/api/countries')
                     .query({ distinct: 'continent' })
-                    .expect(200, [null, 'AS', 'EU', 'AF', 'OC', 'NA', 'AN', 'SA'])
-            )
-    );
+                    .expect(200, [null, 'AS', 'EU', 'AF', 'OC', 'NA', 'AN', 'SA'])));
 
     it('count distinct continents including nulls', () =>
         request().put('/api/countries/TWN')

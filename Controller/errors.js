@@ -1,5 +1,5 @@
 // __Dependencies__
-const es = require('event-stream');
+const from = require('from2');
 const mongoose = require('mongoose');
 const RestError = require('rest-error');
 
@@ -79,24 +79,23 @@ module.exports = function (options, protect) {
     if (!this.handleErrors()) return next(error);
     baucis.formatters(response, (error2, formatter) => {
       if (error2) return next(error2);
-      let errors;
-      if (!error.errors) errors = [error];
-      else if (Array.isArray(error.errors) && error.errors.length !== 0) errors = error.errors;
-      else errors = Object.keys(error.errors).map(key => error.errors[key]);
-      if (errors.length === 0) errors = [error];
-      errors = errors.map(error3 => {
+      let errors = error.errors || [error];
+      if (!Array.isArray(errors))
+        errors = Object.keys(errors).map(key => errors[key]);
+      errors = errors.map(err => {
         let o = {};
-        Object.getOwnPropertyNames(error3).forEach(key => o[key] = error3[key]);
+        Object.getOwnPropertyNames(err).forEach(key => o[key] = err[key]);
         if (o.stack) o.stack = o.stack.trim();
-        delete o.domain;
         delete o.domainEmitter;
         delete o.domainThrown;
+        delete o.domain;
         return o;
       });
-      // TODO deprecated -- always send as single error in 2.0.0
-      let f = formatter(error instanceof RestError.UnprocessableEntity);
+      // Always send as single error
+      errors = [errors.shift() || error, null];
+      let f = formatter(false);
       f.on('error', next);
-      es.readArray(errors).pipe(f).pipe(response);
+      from.obj((size, next) => next(null, errors.shift())).pipe(f).pipe(response);
     });
   });
 };

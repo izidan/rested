@@ -155,7 +155,7 @@ const fixture = module.exports = {
     // Test arbitrary documents
     veggies.request((request, response, next) => {
       if (request.query.creamIt !== 'true') return next();
-      request.baucis.documents = 'Devonshire Clotted Cream.';
+      request.baucis.documents = ['Devonshire Clotted Cream.'];
       next();
     });
 

@@ -1,6 +1,7 @@
+const through = require('through2');
 const es = require('event-stream');
 const crypto = require('crypto');
-const RestError = require('rest-error');
+const from = require('from2');
 
 // Format the Trailer header.
 const addTrailer = (response, header) => {
@@ -17,9 +18,10 @@ const etag = (response, useTrailer) => {
     response.set('Transfer-Encoding', 'chunked');
   }
   let hash = crypto.createHash('md5');
-  return es.through(function (chunk) {
+  return through.obj(function (chunk, enc, callback) {
     hash.update(chunk);
     this.emit('data', chunk);
+    callback();
   }, function () {
     if (useTrailer)
       response.addTrailers({ 'Etag': '"' + hash.digest('hex') + '"' });
@@ -31,10 +33,11 @@ const etag = (response, useTrailer) => {
 // Generate an immediate respone Etag from a context.
 const etagImmediate = (response) => {
   let hash = crypto.createHash('md5');
-  return es.through(function (chunk) {
+  return through.obj(function (chunk, enc, callback) {
     hash.update(JSON.stringify(chunk));
     response.set('Etag', '"' + hash.digest('hex') + '"');
     this.emit('data', chunk);
+    callback();
   }, function () { this.emit('end'); });
 };
 // Generate a Last-Modified header/trailer
@@ -44,9 +47,12 @@ const lastModified = (response, lastModifiedPath, useTrailer) => {
     response.set('Transfer-Encoding', 'chunked');
   }
   let latest = null;
-  return es.through(function (context) {
-    if (!context) return;
-    if (!context.get) return this.emit('data', context);
+  return through.obj(function (context, enc, callback) {
+    if (!context) return callback();
+    if (!context.get) {
+      this.emit('data', context);
+      return callback();
+    }
     //if (!context.doc) return this.emit('data', context);
     //if (!context.doc.get) return this.emit('data', context);
     //let current = context.doc.get(lastModifiedPath);
@@ -56,6 +62,7 @@ const lastModified = (response, lastModifiedPath, useTrailer) => {
     if (!useTrailer)
       response.set('Last-Modified', latest.toUTCString());
     this.emit('data', context);
+    callback();
   }, function () {
     if (useTrailer && latest)
       response.addTrailers({ 'Last-Modified': latest.toUTCString() });
@@ -64,7 +71,7 @@ const lastModified = (response, lastModifiedPath, useTrailer) => {
 };
 // Build a reduce stream.
 const reduce = (accumulated, f) =>
-  es.through((context) => accumulated = f(accumulated, context), function () {
+  through.obj((context, enc, callback) => { accumulated = f(accumulated, context); callback() }, function () {
     this.emit('data', accumulated);
     this.emit('end');
   });
@@ -77,14 +84,14 @@ module.exports = function (options, protect) {
   // If counting get the count and send it back directly.
   protect.finalize((request, response, next) => {
     if (!request.baucis.count) return next();
-    let count = (error, n) => {
-      if (error) return next(error);
-      response.removeHeader('Transfer-Encoding');
-      response.json(n); // TODO support other content types
-    };
-    Array.isArray(request.baucis.documents) ?
-      count(null, request.baucis.documents.length) :
-      request.baucis.query.count(count);
+    if (!Array.isArray(request.baucis.documents))
+      return request.baucis.query.count((error, n) => {
+        if (!error)
+          request.baucis.documents = n;
+        next(error);
+      });
+    request.baucis.documents = request.baucis.documents.length;
+    next();
   });
   // If not counting, create the basic stream pipeline.
   protect.finalize('collection', 'all', (request, response, next) => {
@@ -92,12 +99,16 @@ module.exports = function (options, protect) {
     let documents = request.baucis.documents;
     let pipeline = request.baucis.send = protect.pipeline(next);
     // If documents were set in the baucis hash, use them.
-    if (documents) pipeline(es.readArray([].concat(documents)));
+    if (documents) pipeline(from.obj((size, nxt) => {
+      let chunk = documents;
+      documents = null;
+      nxt(null, chunk);
+    }));
     // Otherwise, stream the relevant documents from Mongo, based on constructed query.
     else pipeline(request.baucis.query.cursor());
     // Check for not found.
-    pipeline(es.through(
-      function (context) { ++count && this.emit('data', context); },
+    pipeline(through.obj(
+      function (context, enc, callback) { ++count; this.emit('data', context); callback() },
       function () {
         if (count === 0)
           response.status(204, { 'Cache-Control': 'no-cache, no-store' });
@@ -117,12 +128,16 @@ module.exports = function (options, protect) {
     let documents = request.baucis.documents;
     let pipeline = request.baucis.send = protect.pipeline(next);
     // If documents were set in the baucis hash, use them.
-    if (documents) pipeline(es.readArray([].concat(documents)));
+    if (documents) pipeline(from.obj((size, nxt) => {
+      let chunk = documents;
+      documents = null;
+      nxt(null, chunk);
+    }));
     // Otherwise, stream the relevant documents from Mongo, based on constructed query.
     else pipeline(request.baucis.query.cursor());
     // Check for not found.
-    pipeline(es.through(
-      function (context) { ++count && this.emit('data', context); },
+    pipeline(through.obj(
+      function (context, enc, callback) { ++count; this.emit('data', context); callback() },
       function () {
         if (count === 0)
           response.status(204, { 'Cache-Control': 'no-cache, no-store' });
@@ -178,7 +193,7 @@ module.exports = function (options, protect) {
     /* ERR_HTTP_TRAILER_INVALID]: Trailers are invalid with this transfer encoding
      * https://github.com/wprl/baucis/issues/330 */
     //request.baucis.send(etag(response, true));
-    request.baucis.send(request.baucis.formatter(true));
+    request.baucis.send(request.baucis.formatter(request.baucis.documents === undefined));
     next();
   });
   // POST
@@ -209,8 +224,12 @@ module.exports = function (options, protect) {
       query.cursor && query.cursor.cursorId && query.cursor.cursorState.killed === false ?
         (query.close || query.destroy || void 0)() : query.pause());
     stream.on('error', next);
-    stream.pipe(es.through(
-      chunk => response.finished !== true && response.write(chunk) === false ? query.pause() : void 0,
+    stream.pipe(through.obj(
+      (chunk, enc, callback) => {
+        if (response.finished !== true && response.write(chunk) === false)
+          query.pause();
+        callback();
+      },
       function () { response.end(); this.emit('end'); }));
   });
 };

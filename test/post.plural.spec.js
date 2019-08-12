@@ -51,7 +51,7 @@ describe('POST plural', () => {
   it('should 422 if no document sent', () =>
     request().post('/api/vegetables/')
       .send([])
-      .expect(422, [{ message: 'The request body must contain at least one document', name: 'RestError' }])
+      .expect(422, { message: 'The request body must contain at least one document', name: 'RestError' })
   );
 
 
@@ -67,18 +67,10 @@ describe('POST plural', () => {
       .send({ score: -1 })
       .expect(422)
       .then(({ body }) => {
-        expect(body).toHaveLength(2);
-        expect(body[0]).toHaveProperty('message', 'Path `name` is required.');
-        expect(body[0]).toHaveProperty('name', 'ValidatorError');
-        expect(body[0]).toHaveProperty('path', 'name');
-        //expect(body[0]).toHaveProperty('type', 'required');
-        expect(body[0]).toHaveProperty('kind', 'required');
-        expect(body[1]).toHaveProperty('message', 'Path `score` (-1) is less than minimum allowed value (1).');
-        expect(body[1]).toHaveProperty('name', 'ValidatorError');
-        expect(body[1]).toHaveProperty('path', 'score');
-        //expect(body[1]).toHaveProperty('type', 'min');
-        expect(body[1]).toHaveProperty('kind', 'min');
-        expect(body[1]).toHaveProperty('value', -1);
+        expect(body).toHaveProperty('message', 'Path `name` is required.');
+        expect(body).toHaveProperty('name', 'ValidatorError');
+        expect(body).toHaveProperty('path', 'name');
+        expect(body).toHaveProperty('kind', 'required');
       })
   );
 
