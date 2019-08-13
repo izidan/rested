@@ -25,10 +25,10 @@ module.exports = function (model, protect) {
     return m;
   });
 
-  protect.property('findBy', '_id', path => {
-    this.model().findBy(path);
-    return path;
-  });
+  protect.property('findBy', path => {
+    if (path) this.model().findBy(path);
+    return this.model().findBy();
+  })
 
   protect.property('fragment', value => {
     if (value === undefined) return '/' + this.model().plural();
