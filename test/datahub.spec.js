@@ -18,7 +18,6 @@ const parser = csv({
 describe('Advanced', () => {
     beforeAll(fixture.init);
     afterAll(fixture.deinit);
-    //beforeEach(fixture.create);
     const request = () => supertest(fixture.app());
 
     it('should replace entire countries collection from csv', done =>
@@ -29,7 +28,8 @@ describe('Advanced', () => {
             fs.createReadStream('test/data/country-codes.csv').pipe(parser)
                 .on('data', row => row.isO31661Alpha3 ? rows.push(row) : null)
                 .on('end', err => err ? done(err) : request().post('/api/countries').send(rows)
-                    .expect(201).then(({ body }) => {
+                    .expect(201)
+                    .then(({ body }) => {
                         expect(body).toHaveLength(rows.length);
                         expect(body[0]).toHaveProperty('_id');
                         expect(body[0]._id).toMatch(/^[A-Z]{3}$/);
@@ -53,7 +53,7 @@ describe('Advanced', () => {
             .query({ distinct: 'continent', conditions: { currency: 'USD' } })
             .expect(200, ['OC', 'NA', 'AS', 'SA']))
 
-    it('cuont distinct continents filtered by currency', () =>
+    it('count distinct continents filtered by currency', () =>
         request().get('/api/countries')
             .query({ distinct: 'continent', count: true, conditions: { currency: 'USD' } })
             .expect(200, '4'))
@@ -74,4 +74,13 @@ describe('Advanced', () => {
             .then(() => request().get('/api/countries')
                 .query({ distinct: 'continent', count: true })
                 .expect(200, '8')));
+
+    it('get distinct by non-existent field should return empty array', () =>
+        request().get('/api/countries')
+            .query({ distinct: 'non-existent' })
+            .expect(200, []))
+
+    it('count distinct by non-existent field should return zero', () =>
+        request().get('/api/countries').query({ distinct: 'non-existent', count: true })
+            .expect(200, '0'))
 });

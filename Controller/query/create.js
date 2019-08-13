@@ -1,10 +1,8 @@
-// __Dependencies__
-const es = require('event-stream');
 const util = require('util');
-const domain = require('domain');
+const from = require('from2');
+const through = require('through2');
 const RestError = require('rest-error');
 
-// __Module Definition__
 module.exports = function (options, protect) {
   const baucis = require('../..');
   const Model = this.model();
@@ -12,16 +10,18 @@ module.exports = function (options, protect) {
     let findBy = this.findBy();
     let pipeline = protect.pipeline(next);
     let url = request.originalUrl || request.url;
+    let select = this.select().split(' ').filter(s => s && s[0] !== '-');
     // Add trailing slash to URL if needed.
     if (url.lastIndexOf('/') === (url.length - 1)) url = url.slice(0, url.length - 1);
     // Set the status to 201 (Created).
     response.status(201);
     // Check if the body was parsed by some external middleware e.g. `express.json`.
     // If so, create a stream from the POST'd document or documents.
-    if (request.body)
-      pipeline(es.readArray([].concat(request.body)));
-    // Otherwise, stream and parse the request.
-    else {
+    if (request.body) {
+      let documents = [].concat(request.body);
+      pipeline(from.obj((size, nxt) => nxt(null, documents.shift() || null)));
+    } else {
+      // Otherwise, stream and parse the request.
       let parser = baucis.parser(request.get('content-type'));
       if (!parser) return next(RestError.UnsupportedMediaType());
       pipeline(request);
@@ -55,21 +55,30 @@ module.exports = function (options, protect) {
     // Save each document.
     pipeline((context, callback) => context.doc.save((error, doc) => error ? next(error) : callback(null, { incoming: context.incoming, doc: doc })));
     // Map the saved documents to document IDs.
-    pipeline((context, callback) => callback(null, context.doc.get(findBy)));
+    //pipeline((context, callback) => callback(null, context.doc.get(findBy)));
+    pipeline((context, callback) => callback(null, {
+      _id: context.doc.get(findBy),
+      doc: select.length === 0 ? context.doc.toJSON() : select.reduce((obj, key) => ({ ...obj, [key]: context.doc.get(key) }), {})
+    }));
     // Write the IDs to an array and process them.
     let s = pipeline();
-    s.pipe(es.writeArray((error, ids) => {
-      if (error) return next(error);
-      // URL location of newly created document or documents.
-      let location;
-      // Set the conditions used to build `request.baucis.query`.
-      let conditions = request.baucis.conditions[findBy] = { $in: ids };
+    let docs = [];
+    s.pipe(through.obj((context, enc, callback) => {
+      docs.push(context);
+      callback();
+    }, () => {
       // Check for at least one document.
-      if (ids.length === 0)
+      if (docs.length === 0)
         return next(RestError.UnprocessableEntity({ message: 'The request body must contain at least one document', name: 'RestError' }));
+      // Set the conditions used to build `request.baucis.query`.
+      request.baucis.documents = docs.length === 1 ? docs[0].doc : docs.map(d => d.doc);
+      let ids = docs.map(d => d._id);
+      let conditions = { $in: ids };
+      // URL location of newly created document or documents.
+      let location = url + '/' + ids[0];
+      if (ids.length > 1)
+        location = util.format('%s?conditions={"%s":%s}', url, findBy, JSON.stringify(conditions));
       // Set the `Location` header if at least one document was sent.
-      if (ids.length === 1) location = url + '/' + ids[0];
-      else location = util.format('%s?conditions={ "%s": %s }', url, findBy, JSON.stringify(conditions));
       response.set('Location', location);
       next();
     }));

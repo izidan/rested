@@ -1,10 +1,10 @@
 // __Dependencies__
 require('mongodb');
-const mongoose = require('mongoose');
-const express = require('express');
-const bodyParser = require('body-parser');
 const async = require('async');
-const es = require('event-stream');
+const express = require('express');
+const through = require('through2');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 const baucis = require('../..');
 
 // __Private Module Members__
@@ -89,9 +89,7 @@ const fixture = module.exports = {
 
     veggies.request((request, response, next) => {
       if (request.query.failIt !== 'true') return next();
-      request.baucis.incoming(es.through(
-        function (context) { this.emit('error', baucis.Error.Forbidden('Bento box')); }
-      ));
+      request.baucis.incoming(through.obj(function (context, enc, cb) { this.emit('error', baucis.Error.Forbidden('Bento box')); cb() }));
       next();
     });
 
@@ -119,7 +117,7 @@ const fixture = module.exports = {
     // Test streaming in through custom handler
     veggies.request((request, response, next) => {
       if (request.query.streamIn !== 'true') return next();
-      request.baucis.incoming(es.map((context, callback) => {
+      request.baucis.incoming(through.obj((context, enc, callback) => {
         context.incoming.name = 'boom';
         callback(null, context);
       }));
@@ -139,7 +137,7 @@ const fixture = module.exports = {
     // Test streaming out through custom handler
     veggies.request((request, response, next) => {
       if (request.query.streamOut !== 'true') return next();
-      request.baucis.outgoing(es.map((context, callback) => {
+      request.baucis.outgoing(through.obj((context, enc, callback) => {
         context.name = 'beam';
         callback(null, context);
       }));

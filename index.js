@@ -5,7 +5,11 @@ const Controller = require('./Controller');
 const Model = require('./Model');
 const Query = require('./Query');
 const RestError = require('rest-error');
-const plugins = { json: require('baucis-json'), links: require('baucis-links') };
+const plugins = {
+  json: require('baucis-json'),
+  links: require('baucis-links'),
+  json2: require('./Accept/json')
+};
 
 let instance;
 const parsers = {};
@@ -70,5 +74,4 @@ RestError.container(baucis);
 Model.container(baucis);
 
 // __Plugins__
-plugins.json.apply(baucis);
-plugins.links.apply(baucis);
+Object.values(plugins).forEach(plugin => plugin.apply(baucis));

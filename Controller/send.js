@@ -1,5 +1,4 @@
 const through = require('through2');
-const es = require('event-stream');
 const crypto = require('crypto');
 const from = require('from2');
 
@@ -69,14 +68,6 @@ const lastModified = (response, lastModifiedPath, useTrailer) => {
     this.emit('end');
   });
 };
-// Build a reduce stream.
-const reduce = (accumulated, f) =>
-  through.obj((context, enc, callback) => { accumulated = f(accumulated, context); callback() }, function () {
-    this.emit('data', accumulated);
-    this.emit('end');
-  });
-// Count emissions.
-const count = () => reduce(0, a => ++a);
 
 module.exports = function (options, protect) {
   const baucis = require('..');
@@ -99,9 +90,9 @@ module.exports = function (options, protect) {
     let documents = request.baucis.documents;
     let pipeline = request.baucis.send = protect.pipeline(next);
     // If documents were set in the baucis hash, use them.
-    if (documents) pipeline(from.obj((size, nxt) => {
-      let chunk = documents;
-      documents = null;
+    if (documents !== undefined) pipeline(from.obj((size, nxt) => {
+      let chunk = documents !== undefined ? documents : null;
+      documents = undefined;
       nxt(null, chunk);
     }));
     // Otherwise, stream the relevant documents from Mongo, based on constructed query.
@@ -128,9 +119,9 @@ module.exports = function (options, protect) {
     let documents = request.baucis.documents;
     let pipeline = request.baucis.send = protect.pipeline(next);
     // If documents were set in the baucis hash, use them.
-    if (documents) pipeline(from.obj((size, nxt) => {
-      let chunk = documents;
-      documents = null;
+    if (documents !== undefined) pipeline(from.obj((size, nxt) => {
+      let chunk = documents !== undefined ? documents : null;
+      documents = undefined;
       nxt(null, chunk);
     }));
     // Otherwise, stream the relevant documents from Mongo, based on constructed query.
@@ -208,11 +199,14 @@ module.exports = function (options, protect) {
   });
   // DELETE
   protect.finalize('delete', (request, response, next) => {
+    let deleted = 0;
     // Remove each document from the database.
     request.baucis.send((context, callback) => context.deleteOne(callback));
     // Respond with the count of deleted documents.
-    request.baucis.send(count());
-    request.baucis.send(es.stringify());
+    request.baucis.send(through.obj(
+      (context, enc, callback) => ++deleted && callback(),
+      function () { this.emit('data', deleted); this.emit('end'); }));
+    request.baucis.send(request.baucis.formatter());
     next();
   });
   // STREAM OUT

@@ -1,13 +1,9 @@
-// __Dependencies__
-const express = require('express');
-const util = require('util');
-const es = require('event-stream');
+const from = require('from2');
+const through = require('through2');
 const RestError = require('rest-error');
 
-// __Private Module Members__
 const validOperators = ['$set', '$push', '$pull', '$addToSet', '$pop', '$pushAll', '$pullAll'];
 
-// __Module Definition__
 module.exports = function (options, protect) {
   const baucis = require('../..');
   const checkBadUpdateOperatorPaths = (operator, paths) => {
@@ -24,9 +20,11 @@ module.exports = function (options, protect) {
     let pipeline = protect.pipeline(next);
     // Check if the body was parsed by some external middleware e.g. `express.json`.
     // If so, create a one-document stream from the parsed body.
-    if (request.body) pipeline(es.readArray([request.body]));
-    // Otherwise, stream and parse the request.
-    else {
+    if (request.body) {
+      let documents = [].concat(request.body);
+      pipeline(from.obj((size, nxt) => nxt(null, documents.shift() || null)));
+    } else {
+      // Otherwise, stream and parse the request.
       let parser = baucis.parser(request.get('content-type'));
       if (!parser) return next(RestError.UnsupportedMediaType());
       pipeline(request);
@@ -34,8 +32,7 @@ module.exports = function (options, protect) {
     }
     // Set up the stream context.
     pipeline((body, callback) => callback(null, { doc: undefined, incoming: body }));
-    // Load the Mongoose document and add it to the context, unless this is a
-    // special update operator.
+    // Load the Mongoose document and add it to the context, unless this is a special update operator.
     if (!operator) pipeline((context, callback) =>
       this.model().findOne(request.baucis.conditions).exec((error, doc) => {
         if (error) return callback(error);
@@ -78,9 +75,10 @@ module.exports = function (options, protect) {
       }
     }
     // Ensure there is exactly one update document.
-    pipeline(es.through(function (context) {
+    pipeline(through.obj(function (context, enc, callback) {
       ++count === 2 ? this.emit('error', RestError.UnprocessableEntity({ message: 'The request body contained more than one update document', name: 'RestError' })) :
         count === 1 ? this.emit('data', context) : void 0;
+      callback();
     }, function () {
       count > 0 ? this.emit('end') :
         this.emit('error', RestError.UnprocessableEntity({ message: 'The request body did not contain an update document', name: 'RestError' }));
