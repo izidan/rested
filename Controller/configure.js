@@ -1,18 +1,16 @@
-// __Dependencies__
 const mongoose = require('mongoose');
 const semver = require('semver');
 const Model = require('../Model');
 const RestError = require('rest-error');
 
-// __Module Definition__
+
 module.exports = function (model, protect) {
   if (typeof model !== 'string' && (!model || !model.schema))
     throw RestError.Misconfigured('You must pass in a model or model name');
-  // __Property Definitions__
+
   protect.property('comments', false);
   protect.property('explain', false);
   protect.property('hints', false);
-  protect.property('select', '');
   protect.property('sort', '');
 
   protect.property('versions', '*', range => {
@@ -24,6 +22,11 @@ module.exports = function (model, protect) {
     if (typeof m === 'string') return mongoose.model(m);
     return m;
   });
+
+  protect.property('select', select => {
+    if (select) this.model().select(select);
+    return this.model().select();
+  })
 
   protect.property('findBy', path => {
     if (path) this.model().findBy(path);

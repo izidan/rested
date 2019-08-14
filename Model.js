@@ -5,7 +5,7 @@ const Model = module.exports = deco(function (options, protect) {
 
   protect.property('plural');
   protect.property('singular');
-  protect.property('selecting');
+  protect.property('select', '');
   protect.property('lastModified');
   protect.property('findBy', '_id');
   protect.property('locking', false);

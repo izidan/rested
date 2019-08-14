@@ -86,7 +86,7 @@ const Countries = new Schema({
     */
 }, { versionKey: false });
 
-mongoose.model('country', Countries);
+const countries = mongoose.model('country', Countries);
 
 module.exports = {
     app: () => app,
@@ -96,7 +96,8 @@ module.exports = {
         await mongoose.connect(global.__MONGO_URI__);
         //await mongoose.connect('mongodb://localhost/test');
 
-        baucis.rest(mongoose.model('country'));//.select('-hyphenated-field-name -voltaic');
+        baucis.rest(countries);
+        countries.select('-names');
 
         app = express();
         app.use('/api', baucis());

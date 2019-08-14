@@ -11,6 +11,7 @@ module.exports = function (options, protect) {
     let pipeline = protect.pipeline(next);
     let url = request.originalUrl || request.url;
     let select = this.select().split(' ').filter(s => s && s[0] !== '-');
+    let deselect = this.select().split(' ').filter(s => s && s[0] === '-').map(f => f.substr(1));
     // Add trailing slash to URL if needed.
     if (url.lastIndexOf('/') === (url.length - 1)) url = url.slice(0, url.length - 1);
     // Set the status to 201 (Created).
@@ -56,10 +57,16 @@ module.exports = function (options, protect) {
     pipeline((context, callback) => context.doc.save((error, doc) => error ? next(error) : callback(null, { incoming: context.incoming, doc: doc })));
     // Map the saved documents to document IDs.
     //pipeline((context, callback) => callback(null, context.doc.get(findBy)));
-    pipeline((context, callback) => callback(null, {
-      _id: context.doc.get(findBy),
-      doc: select.length === 0 ? context.doc.toJSON() : select.reduce((obj, key) => ({ ...obj, [key]: context.doc.get(key) }), {})
-    }));
+    pipeline((context, callback) => {
+      let doc = context.doc;
+      if (select.length > 0)
+        doc = select.reduce((obj, key) => ({ ...obj, [key]: context.doc.get(key) }), {});
+      else if (deselect.length > 0)
+        deselect.forEach((key) => context.doc.set(key, undefined));
+      if (doc.toJSON)
+        doc = doc.toJSON()
+      callback(null, { _id: context.doc.get(findBy), doc: doc });
+    });
     // Write the IDs to an array and process them.
     let s = pipeline();
     let docs = [];

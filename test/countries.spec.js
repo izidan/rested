@@ -1,7 +1,7 @@
 const supertest = require('supertest');
 const csv = require('csv-parser');
 const fs = require('fs');
-const fixture = require('./fixtures/datahub');
+const fixture = require('./fixtures/countries');
 
 const toTitleCase = (str) => str.trim()
     .replace(/([-\s_\(\)\[\]\\\/:])\w?/g, t => t.substr(1).toUpperCase())
@@ -31,8 +31,9 @@ describe('Advanced', () => {
                     .expect(201)
                     .then(({ body }) => {
                         expect(body).toHaveLength(rows.length);
-                        expect(body[0]).toHaveProperty('_id');
-                        expect(body[0]._id).toMatch(/^[A-Z]{3}$/);
+                        expect(body[9]).toHaveProperty('_id');
+                        expect(body[9]._id).toMatch(/^[A-Z]{3}$/);
+                        expect(body[9]).not.toHaveProperty('names');
                         done();
                     }).catch(done)
                 );
@@ -58,14 +59,41 @@ describe('Advanced', () => {
             .query({ distinct: 'continent', count: true, conditions: { currency: 'USD' } })
             .expect(200, '4'))
 
-    it('get distinct continents including nulls', () =>
+    it('get distinct continents with null in last', () =>
+        request().put('/api/countries/USA')
+            .send({ continent: null })
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toHaveProperty('_id', 'USA');
+                expect(body).not.toHaveProperty('names');
+                return request().get('/api/countries')
+                    .query({ distinct: 'continent' })
+                    .expect(200, ['AS', 'EU', 'AF', 'OC', 'NA', 'AN', 'SA', null]);
+            }));
+
+    it('get distinct continents with null in between', () =>
+        request().put('/api/countries/ALB')
+            .send({ continent: null })
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).toHaveProperty('_id', 'ALB');
+                expect(body).not.toHaveProperty('names');
+                return request().get('/api/countries')
+                    .query({ distinct: 'continent' })
+                    .expect(200, ['AS', null, 'AF', 'OC', 'EU', 'NA', 'AN', 'SA']);
+            }));
+
+    it('get distinct continents with null in first', () =>
         request().put('/api/countries/TWN')
             .send({ continent: null })
             .expect(200)
-            .then(() =>
-                request().get('/api/countries')
+            .then(({ body }) => {
+                expect(body).toHaveProperty('_id', 'TWN');
+                expect(body).not.toHaveProperty('names');
+                return request().get('/api/countries')
                     .query({ distinct: 'continent' })
-                    .expect(200, [null, 'AS', 'EU', 'AF', 'OC', 'NA', 'AN', 'SA'])));
+                    .expect(200, [null, 'AS', 'AF', 'OC', 'EU', 'NA', 'AN', 'SA']);
+            }));
 
     it('count distinct continents including nulls', () =>
         request().put('/api/countries/TWN')
