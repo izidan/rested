@@ -34,6 +34,8 @@ module.exports = function () {
     if (!distinct) return next();
     if (this.deselected(distinct))
       return next(RestError.Forbidden('You may not find distinct values for the requested path'));
+    if (!this.model().schema.path(distinct))
+      distinct = Object.keys(this.model().translateAliases({ [distinct]: distinct }))[0];
     this.model().distinct(distinct, request.baucis.conditions, (error, values) => {
       if (!error)
         request.baucis.documents = values;
