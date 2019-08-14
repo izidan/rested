@@ -1,7 +1,5 @@
-// __Dependencies__
 const RestError = require('rest-error');
 
-// __Private Methods__
 const isDefinedAndNotNull = n => {
   if (n === null) return false;
   if (n === undefined) return false;
@@ -24,7 +22,6 @@ const isNonNegativeInteger = n => {
   return n === Math.ceil(n);
 };
 
-// __Module Definition__
 module.exports = function () {
   // Check for bad selection
   const checkBadSelection = select => this.deselected().some(path => new RegExp('[+]?' + path + '\\b', 'i').exec(select))
@@ -57,7 +54,7 @@ module.exports = function () {
   // Apply controller select options to the query.
   this.query((request, response, next) => {
     let select = this.select();
-    if (select) request.baucis.query.select(select);
+    if (select && !request.query.select) request.baucis.query.select(select);
     next();
   });
   // Apply incoming request select to the query.
@@ -68,6 +65,14 @@ module.exports = function () {
       return next(RestError.Forbidden('Including excluded fields is not permitted'));
     if (typeof select === 'string' && checkBadSelection(select))
       return next(RestError.Forbidden('Including excluded fields is not permitted'));
+    // handle aliases, first translate the string into an object
+    if (typeof select === 'string')
+      select = select.split(' ').reduce((obj, key) => ({ ...obj, [key.substr(Number(key[0] === '-'))]: key[0] !== '-' }), {});
+    // translate the select to adjust for any aliased fields
+    select = this.model().translateAliases(select);
+    // correctly parse select nuerical values into valid ones
+    select = JSON.parse(JSON.stringify(select).replace(/:"(\d|true|false)"/gi, ':$1'));
+    // set the query select
     request.baucis.query.select(select);
     next();
   });

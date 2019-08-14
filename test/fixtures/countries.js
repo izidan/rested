@@ -1,7 +1,9 @@
 require('mongodb');
 const mongoose = require('mongoose');
 const express = require('express');
+const csv = require('csv-parser');
 const baucis = require('../..');
+const fs = require('fs');
 
 let app;
 let server;
@@ -10,6 +12,18 @@ const Schema = mongoose.Schema;
 mongoose.set('useCreateIndex', true);
 mongoose.set('useNewUrlParser', true);
 mongoose.set('debug', (process.env.DEBUG || '').match(/mongoose/));
+
+const toTitleCase = (str) => str.trim()
+    .replace(/([-\s_\(\)\[\]\\\/:])\w?/g, t => t.substr(1).toUpperCase())
+    .replace(/(?![a-z])([A-Z]+)$/g, t => t[0].toUpperCase() + t.substr(1).toLowerCase())
+    .replace(/^[A-Z|0-9]+?(?=[A-Z]?[a-z|0-9])/g, t => t.toLowerCase())
+
+const parser = csv({
+    mapHeaders: ({ header }) => toTitleCase(header),
+    mapValues: ({ header, value }) => value.match(/^\s*$/) ? undefined :
+        header.match(/@id|Id|ID/) ? value : !isNaN(value) ? Number(value) :
+            value.match(/^\d{2}\/\d{2}\/\d{4}$/) ? new Date(value.split('/').reverse().join('-')) : value
+});
 
 const Countries = new Schema({
     _id: { type: String, alias: 'isO31661Alpha3' },
@@ -86,7 +100,7 @@ const Countries = new Schema({
     */
 }, { versionKey: false });
 
-const countries = mongoose.model('country', Countries);
+const Country = mongoose.model('country', Countries);
 
 module.exports = {
     app: () => app,
@@ -96,12 +110,15 @@ module.exports = {
         await mongoose.connect(global.__MONGO_URI__);
         //await mongoose.connect('mongodb://localhost/test');
 
-        baucis.rest(countries);
-        countries.select('-names');
+        baucis.rest(Country);
+        Country.select('-names');
 
         app = express();
         app.use('/api', baucis());
 
-        server = app.listen(done);
+        fs.createReadStream('test/data/country-codes.csv').pipe(parser)
+            .on('data', row => row.isO31661Alpha3 ?
+                Country.replaceOne({ _id: row.isO31661Alpha3 }, row, { upsert: true }, (err, doc) => err ? done(err) : null) : null)
+            .on('end', err => err ? done(err) : server = app.listen(done));
     }
 };
