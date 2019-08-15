@@ -35,7 +35,7 @@ module.exports = function () {
       distinct = Object.keys(this.model().translateAliases({ [distinct]: distinct }))[0];
     this.model().distinct(distinct, request.baucis.conditions, (error, values) => {
       if (!error)
-        request.baucis.documents = values;
+        request.baucis.documents = request.query.sort === distinct ? values.sort() : values;
       next(error);
     });
   });
@@ -54,7 +54,17 @@ module.exports = function () {
   // Apply controller select options to the query.
   this.query((request, response, next) => {
     let select = this.select();
-    if (select && !request.query.select) request.baucis.query.select(select);
+    // skip when no select is not preset
+    if (!select) return next();
+    let reselect = request.query.select || '';
+    // skip when query select is an object
+    if (typeof reselect === 'object') return next();
+    // take the deselected _id field out of the comparison
+    // as it is the only field that can be always deselected
+    reselect = reselect.replace('-_id', '').trim();
+    // take default selection into consideration when no query select or both have the same sign +-
+    if (!reselect || (select[0] === '-' && reselect[0] === '-') || (select[0] !== '-' && reselect[0] !== '-'))
+      request.baucis.query.select(select);
     next();
   });
   // Apply incoming request select to the query.

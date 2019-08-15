@@ -15,6 +15,11 @@ describe('Distinct', () => {
         request().get('/api/countries').query({ distinct: 'continent', count: true })
             .expect(200, '7'))
 
+    it('sort distinct values', () =>
+        request().get('/api/countries')
+            .query({ distinct: 'continent', sort: 'continent' })
+            .expect(200, ['AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA']))
+
     it('get distinct values filtered by currency', () =>
         request().get('/api/countries')
             .query({ distinct: 'continent', conditions: { currency: 'USD' } })
@@ -60,6 +65,11 @@ describe('Distinct', () => {
                     .query({ distinct: 'continent' })
                     .expect(200, [null, 'AS', 'AF', 'OC', 'EU', 'NA', 'AN', 'SA']);
             }));
+
+    it('sort distinct values with null', () =>
+        request().get('/api/countries')
+            .query({ distinct: 'continent', sort: 'continent' })
+            .expect(200, ['AF', 'AN', 'AS', 'EU', 'NA', 'OC', 'SA', null]));
 
     it('count distinct values including nulls', () =>
         request().put('/api/countries/TWN')

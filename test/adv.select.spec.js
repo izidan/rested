@@ -21,6 +21,17 @@ describe('Select', () => {
             .query({ select: '-_id regionName region.name' })
             .expect(200, { region: { name: 'Americas' } }))
 
+
+    it('deselect an aliased field with original field', () =>
+        request().get('/api/countries/USA')
+            .query({ select: '-_id -regionName -region.name' })
+            .expect(200)
+            .then(({ body }) => {
+                expect(body).not.toHaveProperty('names');
+                expect(body).toHaveProperty('region');
+                expect(body.region).not.toHaveProperty('name');
+            }))
+
     it('select using an object with numbers', () =>
         request().get('/api/countries/USA')
             .query({ select: { _id: 0, regionName: 1, 'region.name': 1 } })

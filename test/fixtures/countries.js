@@ -117,8 +117,7 @@ module.exports = {
         app.use('/api', baucis());
 
         fs.createReadStream('test/data/country-codes.csv').pipe(parser)
-            .on('data', row => row.isO31661Alpha3 ?
-                Country.replaceOne({ _id: row.isO31661Alpha3 }, row, { upsert: true }, (err, doc) => err ? done(err) : null) : null)
+            .on('data', async row => row.isO31661Alpha3 ? await Country.replaceOne({ _id: row.isO31661Alpha3 }, row, { upsert: true }) : null)
             .on('end', err => err ? done(err) : server = app.listen(done));
     }
 };
