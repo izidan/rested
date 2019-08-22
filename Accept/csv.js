@@ -20,8 +20,11 @@ const singleOrArray = function () {
                 header = output.match(/^.*?\n/)[0];
             else
                 output = output.substr(header.length);
-            this.emit('data', output)
+            // ensure dates without timestamp represented as iso date string
+            this.emit('data', output.replace(datergx, ''))
             callback();
         });
     });
 };
+
+const datergx = RegExp('T00:00:00.000Z', 'g'); // ensure dates represented as dates

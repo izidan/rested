@@ -41,7 +41,7 @@ const nullattrgx = RegExp('(\"[_|@][^\"]+\"):null', 'g');
 
 const xml = (root, doc, opt) => (doc instanceof Array ? doc : doc !== null ? [doc] : [])
     .map(d => jxon.jsToXml(d, null, root)).join('')
-    // ensure dates without timestamp represented as date string
+    // ensure dates without timestamp represented as iso date string
     .replace(datergx, '')
     // remove empty attributes
     .replace(nullattrgx, '$1:""')
