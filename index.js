@@ -6,14 +6,14 @@ const Model = require('./Model');
 const Query = require('./Query');
 const RestError = require('rest-error');
 const plugins = {
+  json: require('baucis-json'),
+  links: require('baucis-links'),
+  json2: require('./accept/json'),
+  jsonp: require('./accept/jsonp'),
+  yaml: require('./accept/yaml'),
   xml: require('./accept/xml'),
   csv: require('./accept/csv'),
   tsv: require('./accept/tsv'),
-  json: require('baucis-json'),
-  links: require('baucis-links'),
-  yaml: require('./accept/yaml'),
-  json2: require('./accept/json'),
-  jsonp: require('./accept/jsonp'),
 };
 
 let instance;

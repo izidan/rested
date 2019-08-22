@@ -72,7 +72,7 @@ describe('Headers', () => {
 
   it('sends 406 Not Acceptable when the requested type is not accepted', () =>
     request().get('/api/vegetables')
-      .set('Accept', 'application/xml')
+      .set('Accept', 'application/unknown')
       .expect('content-type', 'text/html; charset=utf-8')
       .expect(406, /Not Acceptable: The requested content type could not be provided \(406\)\./)
   );
