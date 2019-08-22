@@ -45,9 +45,13 @@
   "dependencies": {
     "baucis-json": "^1.0.0",
     "baucis-links": "^1.0.1",
+    "csv-stringify": "^5.3.3",
     "deco": "0.12.3",
     "event-stream": "^4.0.1",
+    "flat": "^4.1.0",
     "from2": "^2.3.0",
+    "js-yaml": "^3.13.1",
+    "jxon": "^2.0.0-beta.5",
     "rest-error": "^1.3.1",
     "semver": "^6.3.0",
     "through2": "^3.0.1"

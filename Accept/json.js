@@ -1,7 +1,4 @@
 const through = require('through2');
-//const _ = require('underscore');
-
-//const parse = JSON._parse || JSON.parse;
 
 module.exports = function () {
   this.setFormatter('text/json', singleOrArray);
@@ -9,11 +6,7 @@ module.exports = function () {
 }
 
 const singleOrArray = function (alwaysArray) {
-  let last, path, id;
-  //if (this.controller && this.controller.model().path()) {
-  //  path = this.controller.model().defaults.path.substr(0, this.controller.model().defaults.path.length - 1);
-  //  id = this.controller.findBy();
-  //}
+  let last;
   return through.obj(function (doc, enc, callback) {
     if (doc && doc.constructor.name === 'model')
       doc = JSON.parse(JSON.stringify(doc));
@@ -22,8 +15,6 @@ const singleOrArray = function (alwaysArray) {
     if (alwaysArray && last === undefined && Array.isArray(doc))
       this.emit('data', '[');
     for (var d of doc) {
-      // if (path)
-      //   d = _.extract(d, id, path);
       if (last !== undefined)
         this.emit('data', ',');
       last = d;
