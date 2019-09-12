@@ -12,6 +12,7 @@ let server;
 
 mongoose.set('useCreateIndex', true);
 mongoose.set('useNewUrlParser', true);
+mongoose.set('useUnifiedTopology', true);
 mongoose.set('debug', (process.env.DEBUG || '').match(/mongoose/));
 
 const BaseSchema = deco(function () { this.add({ name: String }) });

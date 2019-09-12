@@ -10,10 +10,11 @@ const plugins = {
   links: require('baucis-links'),
   json2: require('./accept/json'),
   jsonp: require('./accept/jsonp'),
-  yaml: require('./accept/yaml'),
   xml: require('./accept/xml'),
   csv: require('./accept/csv'),
   tsv: require('./accept/tsv'),
+  yaml: require('./accept/yaml'),
+  msgpack: require('./accept/msgpack'),
 };
 
 let instance;

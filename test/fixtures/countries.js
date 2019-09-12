@@ -11,6 +11,7 @@ const Schema = mongoose.Schema;
 
 mongoose.set('useCreateIndex', true);
 mongoose.set('useNewUrlParser', true);
+mongoose.set('useUnifiedTopology', true);
 mongoose.set('debug', (process.env.DEBUG || '').match(/mongoose/));
 
 const toTitleCase = (str) => str.trim()
@@ -61,8 +62,8 @@ const Countries = new Schema({
         alpha3: { alias: 'isO31661Alpha3', type: String },
         numeric: { alias: 'isO31661Numeric', type: Number }
     },
-    currency: { type: [String], alias: 'isO4217CurrencyAlphabeticCode', set: v => v.split(',') },
-    languages: { type: [String], set: v => v.split(',') },
+    currency: { type: [String], alias: 'isO4217CurrencyAlphabeticCode', set: v => v ? v.toString().split(',') : v },
+    languages: { type: [String], set: v => v ? v.toString().split(',') : v },
     independent: { type: Boolean, alias: 'isIndependent', set: v => v === 'Yes' },
     region: {
         code: { type: Number, alias: 'regionCode' },

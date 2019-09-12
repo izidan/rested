@@ -14,8 +14,11 @@ const singleOrArray = function (alwaysArray) {
             doc = JSON.parse(JSON.stringify(doc));
         alwaysArray = alwaysArray || (doc instanceof Array);
         doc = doc instanceof Array ? doc : doc !== undefined ? [doc] : undefined;
-        if (alwaysArray && last === undefined && Array.isArray(doc))
-            this.emit('data', 'jsonp([');
+        if (last === undefined) {
+            this.emit('data', 'jsonp(');
+            if (alwaysArray && last === undefined && Array.isArray(doc))
+                this.emit('data', '[');
+        }
         for (var d of doc) {
             if (last !== undefined)
                 this.emit('data', ',');
@@ -27,10 +30,11 @@ const singleOrArray = function (alwaysArray) {
         }
         callback();
     }, function () {
-        if (alwaysArray)
+        if (alwaysArray) {
             this.emit('data', ']');
-        this.emit('data', ',' + JSON.stringify(schema).replace(datetime, 'new Date($1)'));
-        //.replace(/":"[^"]+"/g, '":""');
+            this.emit('data', ',' + JSON.stringify(schema).replace(datetime, 'new Date($1)'));
+            //.replace(/":"[^"]+"/g, '":""');
+        }
         this.emit('data', ')');
         this.emit('end');
     });

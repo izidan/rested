@@ -14,6 +14,7 @@ const Schema = mongoose.Schema;
 
 mongoose.set('useCreateIndex', true);
 mongoose.set('useNewUrlParser', true);
+mongoose.set('useUnifiedTopology', true);
 mongoose.set('debug', (process.env.DEBUG || '').match(/mongoose/));
 
 // __Fixture Schemata__
