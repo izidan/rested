@@ -8,13 +8,13 @@ const RestError = require('rest-error');
 const plugins = {
   json: require('baucis-json'),
   links: require('baucis-links'),
-  json2: require('./accept/json'),
-  jsonp: require('./accept/jsonp'),
-  xml: require('./accept/xml'),
-  csv: require('./accept/csv'),
-  tsv: require('./accept/tsv'),
-  yaml: require('./accept/yaml'),
-  msgpack: require('./accept/msgpack'),
+  json2: require('./Accept/json'),
+  jsonp: require('./Accept/jsonp'),
+  xml: require('./Accept/xml'),
+  csv: require('./Accept/csv'),
+  tsv: require('./Accept/tsv'),
+  yaml: require('./Accept/yaml'),
+  msgpack: require('./Accept/msgpack'),
 };
 
 let instance;
