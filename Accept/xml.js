@@ -16,15 +16,19 @@ const singleOrArray = function (alwaysArray) {
         alwaysArray = alwaysArray || (doc instanceof Array);
         if (last === undefined) {
             this.emit('data', '<?xml version="1.0" encoding="utf-8"?>');
-            singular = (doc !== null ? doc['@xsi:type'] : singular) || singular;
+            singular = doc && doc['@xsi:type'] !== null && doc['@xsi:type'].split(':').pop().match(/^[a-z]/) ? doc['@xsi:type'] : singular;
             if (alwaysArray) {
                 arrayOf = singular.replace(/\w+:(\w)/, '$1');
                 arrayOf = arrayOf[0].toUpperCase() + arrayOf.substr(1);
                 last = `<ArrayOf${arrayOf}>`;
             } else last = '';
         } else last = '';
-        doc['@id'] = doc._id;
-        delete doc._id;
+        if (singular === doc['@xsi:type'])
+            delete doc['@xsi:type'];
+        if (!doc['@id'] && !!doc._id) {
+            doc['@id'] = doc._id;
+            delete doc._id;
+        }
         last += xml(singular, doc);
         this.emit('data', last);
         callback();
