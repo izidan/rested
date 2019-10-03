@@ -7,7 +7,7 @@
     "url": "https://github.com/izidan"
   },
   "homepage": "https://github.com/izidan/rested",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "scripts": {
     "test": "./node_modules/.bin/jest --runInBand",
     "coverage": "./node_modules/.bin/jest --runInBand --coverage"
@@ -43,17 +43,16 @@
     "http"
   ],
   "dependencies": {
-    "baucis-json": "^1.0.0",
     "baucis-links": "^1.0.1",
     "csv-stringify": "^5.3.3",
     "deco": "0.12.3",
     "event-stream": "^4.0.1",
     "flat": "^4.1.0",
     "from2": "^2.3.0",
+    "http-errors": "^1.7.3",
     "js-yaml": "^3.13.1",
     "jxon": "^2.0.0-beta.5",
     "msgpack-lite": "^0.1.26",
-    "rest-error": "^1.3.1",
     "semver": "^6.3.0",
     "through2": "^3.0.1"
   },
@@ -68,7 +67,7 @@
     "csv-parser": "^2.3.1",
     "express": "^4.17.1",
     "jest": "^24.9.0",
-    "mongoose": "^5.7.1",
+    "mongoose": "^5.7.3",
     "parse-link-header": "^1.0.1",
     "supertest": "^4.0.2"
   }

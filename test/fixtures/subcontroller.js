@@ -1,7 +1,7 @@
 require('mongodb');
 const mongoose = require('mongoose');
 const express = require('express');
-const baucis = require('../..');
+const rested = require('../..');
 
 let app;
 let server;
@@ -25,11 +25,11 @@ module.exports = {
   init: done => {
     mongoose.connect(global.__MONGO_URI__);
 
-    let users = baucis.rest('user');
+    let users = rested.rest('user');
     let tasks = users.vivify('tasks');
 
     tasks.request((request, response, next) => {
-      request.baucis.outgoing((context, callback) => {
+      request.rested.outgoing((context, callback) => {
         context.doc.name = 'Changed by Middleware';
         callback(null, context);
       });
@@ -37,12 +37,12 @@ module.exports = {
     });
 
     tasks.query((request, response, next) => {
-      request.baucis.query.where('user', request.params._id);
+      request.rested.query.where('user', request.params._id);
       next();
     });
 
     app = express();
-    app.use('/api', baucis());
+    app.use('/api', rested());
 
     server = app.listen(done);
   },

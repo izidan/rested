@@ -74,7 +74,7 @@ describe('Headers', () => {
     request().get('/api/vegetables')
       .set('Accept', 'application/unknown')
       .expect('content-type', 'text/html; charset=utf-8')
-      .expect(406, /Not Acceptable: The requested content type could not be provided \(406\)\./)
+      .expect(406, /Not Acceptable/)
   );
 
   it('should send 415 Unsupported Media Type when the request content type cannot be parsed', () =>
@@ -82,7 +82,7 @@ describe('Headers', () => {
       .set('Content-Type', 'application/xml')
       .expect(415)
       .then(({ body }) =>
-        expect(body).toHaveProperty('message', "The request's content type is unsupported (415).")
+        expect(body).toHaveProperty('message', "Unsupported Media Type")
       ));
 
   it('should match the correct MIME type, ignoring extra options and linear whitespace', () =>

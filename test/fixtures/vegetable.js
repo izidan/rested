@@ -5,7 +5,7 @@ const express = require('express');
 const through = require('through2');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const baucis = require('../..');
+const rested = require('../..');
 
 // __Private Module Members__
 let app;
@@ -67,14 +67,14 @@ const fixture = module.exports = {
     fixture.saveCount = 0;
     fixture.removeCount = 0;
 
-    baucis.rest('fungus').select('-hyphenated-field-name');
+    rested.rest('fungus').select('-hyphenated-field-name');
 
-    baucis.rest('mineral').relations(true).sort('color').explain(true);
+    rested.rest('mineral').relations(true).sort('color').explain(true);
 
-    baucis.rest('animal').fragment('empty-array');
-    baucis.rest('animal').fragment('no-content');
+    rested.rest('animal').fragment('empty-array');
+    rested.rest('animal').fragment('no-content');
 
-    let veggies = baucis.rest('vegetable');
+    let veggies = rested.rest('vegetable');
     veggies.relations(false).hints(true).comments(true);
 
     veggies.request((request, response, next) => {
@@ -84,31 +84,31 @@ const fixture = module.exports = {
 
     veggies.query((request, response, next) => {
       if (request.query.testQuery !== 'true') return next();
-      request.baucis.query.select('_id lastModified');
+      request.rested.query.select('_id lastModified');
       next();
     });
 
     veggies.request((request, response, next) => {
       if (request.query.failIt !== 'true') return next();
-      request.baucis.incoming(through.obj(function (context, enc, cb) { this.emit('error', baucis.Error.Forbidden('Bento box')); cb() }));
+      request.rested.incoming(through.obj(function (context, enc, cb) { this.emit('error', rested.Error.Forbidden('Bento box')); cb() }));
       next();
     });
 
     veggies.request((request, response, next) => {
       if (request.query.failItFunction !== 'true') return next();
-      request.baucis.incoming((context, callback) => callback(baucis.Error.Forbidden('Bento box')));
+      request.rested.incoming((context, callback) => callback(rested.Error.Forbidden('Bento box')));
       next();
     });
 
     veggies.request((request, response, next) => {
       if (request.query.failIt2 !== 'true') return next();
-      request.baucis.outgoing((context, callback) => callback(baucis.Error.Forbidden('Bento box')));
+      request.rested.outgoing((context, callback) => callback(rested.Error.Forbidden('Bento box')));
       next();
     });
 
     veggies.request((request, response, next) => {
       if (request.query.deleteNutrients !== 'true') return next();
-      request.baucis.outgoing((context, callback) => {
+      request.rested.outgoing((context, callback) => {
         context.nutrients = undefined;
         callback(null, context);
       });
@@ -118,7 +118,7 @@ const fixture = module.exports = {
     // Test streaming in through custom handler
     veggies.request((request, response, next) => {
       if (request.query.streamIn !== 'true') return next();
-      request.baucis.incoming(through.obj((context, enc, callback) => {
+      request.rested.incoming(through.obj((context, enc, callback) => {
         context.incoming.name = 'boom';
         callback(null, context);
       }));
@@ -128,7 +128,7 @@ const fixture = module.exports = {
     // Test streaming in through custom handler
     veggies.request((request, response, next) => {
       if (request.query.streamInFunction !== 'true') return next();
-      request.baucis.incoming((context, callback) => {
+      request.rested.incoming((context, callback) => {
         context.incoming.name = 'bimm';
         callback(null, context);
       });
@@ -138,7 +138,7 @@ const fixture = module.exports = {
     // Test streaming out through custom handler
     veggies.request((request, response, next) => {
       if (request.query.streamOut !== 'true') return next();
-      request.baucis.outgoing(through.obj((context, enc, callback) => {
+      request.rested.outgoing(through.obj((context, enc, callback) => {
         context.name = 'beam';
         callback(null, context);
       }));
@@ -154,19 +154,19 @@ const fixture = module.exports = {
     // Test arbitrary documents
     veggies.request((request, response, next) => {
       if (request.query.creamIt !== 'true') return next();
-      request.baucis.documents = ['Devonshire Clotted Cream.'];
+      request.rested.documents = ['Devonshire Clotted Cream.'];
       next();
     });
 
     // Test 404 for documents
     veggies.request((request, response, next) => {
       if (request.query.emptyIt !== 'true') return next();
-      request.baucis.documents = 0;
+      request.rested.documents = 0;
       next();
     });
 
     app = express();
-    app.use('/api', baucis());
+    app.use('/api', rested());
 
     server = app.listen(done);
   },

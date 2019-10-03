@@ -1,10 +1,9 @@
-const util = require('util');
 const from = require('from2');
 const through = require('through2');
-const RestError = require('rest-error');
+const errors = require('http-errors');
 
 module.exports = function (options, protect) {
-  const baucis = require('../..');
+  const rested = require('../..');
   const Model = this.model();
   this.query('post', (request, response, next) => {
     let findBy = this.findBy();
@@ -23,25 +22,22 @@ module.exports = function (options, protect) {
       pipeline(from.obj((size, nxt) => nxt(null, documents.shift() || null)));
     } else {
       // Otherwise, stream and parse the request.
-      let parser = baucis.parser(request.get('content-type'));
-      if (!parser) return next(RestError.UnsupportedMediaType());
+      let parser = rested.parser(request.get('content-type'));
+      if (!parser) return next(errors.UnsupportedMediaType());
       pipeline(request);
       pipeline(parser);
     }
     // Create the stream context.
     pipeline((incoming, callback) => callback(null, { incoming: incoming, doc: null }));
     // Process the incoming document or documents.
-    pipeline(request.baucis.incoming());
+    pipeline(request.rested.incoming());
     // Map function to create a document from incoming JSON and update the context.
     pipeline((context, callback) => {
       let transformed = { incoming: context.incoming };
       let type = context.incoming.__t;
       let Discriminator = type ? Model.discriminators[type] : undefined;
       if (type && !Discriminator)
-        return callback(RestError.UnprocessableEntity({
-          message: "A document's type did not match any known discriminators for this resource",
-          name: 'RestError', path: '__t', value: type
-        }));
+        return callback(errors.UnprocessableEntity(`A document's type "${type}" did not match any known discriminators for this resource`));
       // Create the document using either the model or child model.
       if (type) transformed.doc = new Discriminator();
       else transformed.doc = new Model();
@@ -76,15 +72,15 @@ module.exports = function (options, protect) {
     }, () => {
       // Check for at least one document.
       if (docs.length === 0)
-        return next(RestError.UnprocessableEntity({ message: 'The request body must contain at least one document', name: 'RestError' }));
-      // Set the conditions used to build `request.baucis.query`.
-      request.baucis.documents = docs.length === 1 ? docs[0].doc : docs.map(d => d.doc);
+        return next(errors.UnprocessableEntity('The request body must contain at least one document'));
+      // Set the conditions used to build `request.rested.query`.
+      request.rested.documents = docs.length === 1 ? docs[0].doc : docs.map(d => d.doc);
       let ids = docs.map(d => d._id);
       let conditions = { $in: ids };
       // URL location of newly created document or documents.
       let location = url + '/' + ids[0];
       if (ids.length > 1)
-        location = util.format('%s?conditions={"%s":%s}', url, findBy, JSON.stringify(conditions));
+        location = `${url}?conditions={"${findBy}":${JSON.stringify(conditions)}}`;
       // Set the `Location` header if at least one document was sent.
       response.set('Location', location);
       next();

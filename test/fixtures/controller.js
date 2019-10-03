@@ -1,7 +1,7 @@
 require('mongodb');
 const mongoose = require('mongoose');
 const express = require('express');
-const baucis = require('../..');
+const rested = require('../..');
 
 let app;
 let server;
@@ -57,7 +57,7 @@ module.exports = {
     mongoose.connect(global.__MONGO_URI__);
 
     // Stores controller
-    let stores = baucis.rest('store').findBy('name').select('-hyphenated-field-name -voltaic');
+    let stores = rested.rest('store').findBy('name').select('-hyphenated-field-name -voltaic');
 
     stores.use('/binfo', (request, response, next) => response.json('Poncho!'));
 
@@ -74,25 +74,25 @@ module.exports = {
       response.json(request.params.id);
     });
 
-    let cheesy = baucis.rest('cheese').select('-_id color name').findBy('name');
+    let cheesy = rested.rest('cheese').select('-_id color name').findBy('name');
     cheesy.operators('$push', 'molds arbitrary arbitrary.$.llama');
     cheesy.operators('$set', 'molds arbitrary.$.champagne');
     cheesy.operators('$pull', 'molds arbitrary.$.llama');
 
-    baucis.rest('timeentry').findBy('name').select('color');
-    baucis.rest('bean').methods('get', false);
-    baucis.rest('dean').findBy('room').methods('get', false);
-    baucis.rest('lien').select('-title').methods('delete', false);
-    baucis.rest('mean');
-    baucis.rest('bal').findBy('name');
-    baucis.rest('bal').fragment('linseed.oil');
+    rested.rest('timeentry').findBy('name').select('color');
+    rested.rest('bean').methods('get', false);
+    rested.rest('dean').findBy('room').methods('get', false);
+    rested.rest('lien').select('-title').methods('delete', false);
+    rested.rest('mean');
+    rested.rest('bal').findBy('name');
+    rested.rest('bal').fragment('linseed.oil');
 
     app = express();
-    app.use('/api', baucis());
+    app.use('/api', rested());
 
-    baucis.rest('cheese').fragment('geese').handleErrors(false);
+    rested.rest('cheese').fragment('geese').handleErrors(false);
 
-    app.use('/api-no-error-handler', baucis());
+    app.use('/api-no-error-handler', rested());
 
     server = app.listen(done);
   },

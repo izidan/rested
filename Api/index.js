@@ -2,7 +2,7 @@
 const deco = require('deco');
 const semver = require('semver');
 const express = require('express');
-const RestError = require('rest-error');
+const errors = require('http-errors');
 const Controller = require('../Controller');
 
 semver.prereleases = (releases, version) => releases.filter(release =>
@@ -12,8 +12,9 @@ semver.prereleases = (releases, version) => releases.filter(release =>
 // __Module Definition__
 const Api = module.exports = deco(function (options, protect) {
   this.use((request, response, next) => {
-    if (request.baucis) return next(RestError.Misconfigured('Baucis request property already created'));
-    request.baucis = {};
+    if (request.rested) return next(errors.InternalServerError('Rested request property already created'));
+    // maintain baucis compatability
+    request.rested = request.baucis = {};
     response.removeHeader('x-powered-by');
     // Any caching proxies should be aware of API version.
     response.vary('Accept-Version');
@@ -23,20 +24,20 @@ const Api = module.exports = deco(function (options, protect) {
     let version = request.headers['accept-version'] || '*';
     // Check the requested API version is valid.
     if (!semver.validRange(version))
-      return next(RestError.BadRequest('The requested API version range "%s" was not a valid semver range', version));
+      return next(errors.BadRequest(`The requested API version range "${version}" was not a valid semver range`));
     // Use max satisfied release to replace version *.* pattern to reslove pre-releases/tags
     let releases = version.indexOf('-') > 0 ? semver.prereleases(this.releases(), version) : this.releases();
-    request.baucis.release = semver.maxSatisfying(releases, version, { includePrerelease: version.indexOf('-') > 0 });
+    request.rested.release = semver.maxSatisfying(releases, version, { includePrerelease: version.indexOf('-') > 0 });
     // Check for API version unsatisfied and give a 400 if no versions match.
-    if (!request.baucis.release)
-      return next(RestError.BadRequest('The requested API version range "%s" could not be satisfied', version));
-    response.set('Accept-Version', request.baucis.release);
+    if (!request.rested.release)
+      return next(errors.BadRequest(`The requested API version range "${version}" could not be satisfied`));
+    response.set('Accept-Version', request.rested.release);
     next();
   });
   // __Public Members___
   protect.property('releases', ['0.0.1'], release => {
     if (!semver.valid(release))
-      throw RestError.Misconfigured('Release version "%s" is not a valid semver version', release);
+      throw errors.InternalServerError(`Release version "${release}" is not a valid semver version`);
     return this.releases().concat(release);
   });
 

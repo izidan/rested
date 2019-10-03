@@ -51,9 +51,10 @@ describe('POST plural', () => {
   it('should 422 if no document sent', () =>
     request().post('/api/vegetables/')
       .send([])
-      .expect(422, { message: 'The request body must contain at least one document', name: 'RestError' })
+      .expect(422)
+      .then(({ body }) =>
+        expect(body).toHaveProperty('message', 'The request body must contain at least one document'))
   );
-
 
   it('should fire pre save Mongoose middleware', () => {
     fixture.saveCount = 0;
@@ -79,7 +80,7 @@ describe('POST plural', () => {
       .send('bababa { cacacaca "name": "Garlic Scape" }')
       .set('Content-Type', 'application/json')
       .expect(400)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'The body of this request was invalid and could not be parsed. "Unexpected token c in JSON at position 2" (400).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'The body of this request was invalid and could not be parsed. "Unexpected token c in JSON at position 2"'))
   );
 
 });

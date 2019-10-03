@@ -1,5 +1,5 @@
 // __Dependencies__
-const RestError = require('rest-error');
+const errors = require('http-errors');
 require('../Controller');
 // __Private Module Members__
 // Expands route definitions based on generalized arguments.
@@ -14,7 +14,7 @@ const last = (skip, names, values) => {
   let r = {};
   let position = names.length;
   let count = values.filter(o => o !== undefined && o !== null).length - skip;
-  if (count < 1) throw RestError.Misconfigured('Too few arguments.');
+  if (count < 1) throw errors.InternalServerError('Too few arguments.');
   names.forEach(name => {
     let index = skip + count - position;
     position--;
@@ -32,16 +32,16 @@ const factor = options => {
   if (methodString) methodString = methodString.toLowerCase();
   if (!methodString || methodString === '*') methodString = 'all';
   methods = methodString.split(/\s+/);
-  methods.forEach(method => { if (!isRecognizedMethod(method)) throw RestError.Misconfigured('Unrecognized HTTP method: "%s"', method) });
-  if (!options.stage) throw RestError.Misconfigured('The middleware stage was not provided');
+  methods.forEach(method => { if (!isRecognizedMethod(method)) throw errors.InternalServerError(`Unrecognized HTTP method: "${method}"`) });
+  if (!options.stage) throw errors.InternalServerError('The middleware stage was not provided');
   if (options.endpoint && options.endpoint !== 'instance' && options.endpoint !== 'collection')
-    throw RestError.Misconfigured('End-point type must be either "instance" or "collection," not "%s"', options.endpoint);
+    throw errors.InternalServerError(`End-point type must be either "instance" or "collection," not "${options.endpoint}"`);
   // Middleware function or array
   if (!Array.isArray(options.middleware) && typeof options.middleware !== 'function')
-    throw RestError.Misconfigured('Middleware must be an array or function');
+    throw errors.InternalServerError('Middleware must be an array or function');
   // Check endpoint is valid
   if (options.endpoint !== undefined && options.endpoint !== 'instance' && options.endpoint !== 'collection')
-    throw RestError.Misconfigured('End-point type must be either "instance" or "collection," not "%s"', options.endpoint);
+    throw errors.InternalServerError(`End-point type must be either "instance" or "collection," not "${options.endpoint}"`);
   // Add definitions for one or both endpoints, for each HTTP method.
   methods.forEach(method => {
     if (options.endpoint !== 'collection') factored.push({ stage: options.stage, endpoint: 'instance', method: method, middleware: options.middleware });

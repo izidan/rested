@@ -1,4 +1,4 @@
-const RestError = require('rest-error');
+const errors = require('http-errors');
 
 const isDefinedAndNotNull = n => {
   if (n === null) return false;
@@ -30,25 +30,25 @@ module.exports = function () {
     let distinct = request.query.distinct;
     if (!distinct) return next();
     if (this.deselected(distinct))
-      return next(RestError.Forbidden('You may not find distinct values for the requested path'));
+      return next(errors.Forbidden('You may not find distinct values for the requested path'));
     if (!this.model().schema.path(distinct))
       distinct = Object.keys(this.model().translateAliases({ [distinct]: distinct }))[0];
-    this.model().distinct(distinct, request.baucis.conditions, (error, values) => {
+    this.model().distinct(distinct, request.rested.conditions, (error, values) => {
       if (!error)
-        request.baucis.documents = request.query.sort === distinct ? values.sort() : values;
+        request.rested.documents = request.query.sort === distinct ? values.sort() : values;
       next(error);
     });
   });
   // Apply controller sort options to the query.
   this.query((request, response, next) => {
     let sort = this.sort();
-    if (sort) request.baucis.query.sort(sort);
+    if (sort) request.rested.query.sort(sort);
     next();
   });
   // Apply incoming request sort.
   this.query((request, response, next) => {
     let sort = request.query.sort;
-    if (sort) request.baucis.query.sort(sort);
+    if (sort) request.rested.query.sort(sort);
     next();
   });
   // Apply controller select options to the query.
@@ -64,7 +64,7 @@ module.exports = function () {
     reselect = reselect.replace('-_id', '').trim();
     // take default selection into consideration when no query select or both have the same sign +-
     if (!reselect || (select[0] === '-' && reselect[0] === '-') || (select[0] !== '-' && reselect[0] !== '-'))
-      request.baucis.query.select(select);
+      request.rested.query.select(select);
     next();
   });
   // Apply incoming request select to the query.
@@ -72,9 +72,9 @@ module.exports = function () {
     let select = request.query.select;
     if (!select) return next();
     if (typeof select === 'string' && select.indexOf('+') !== -1)
-      return next(RestError.Forbidden('Including excluded fields is not permitted'));
+      return next(errors.Forbidden('Including excluded fields is not permitted'));
     if (typeof select === 'string' && checkBadSelection(select))
-      return next(RestError.Forbidden('Including excluded fields is not permitted'));
+      return next(errors.Forbidden('Including excluded fields is not permitted'));
     // handle aliases, first translate the string into an object
     if (typeof select === 'string')
       select = select.split(' ').reduce((obj, key) => ({ ...obj, [key.substr(Number(key[0] === '-'))]: key[0] !== '-' }), {});
@@ -83,13 +83,13 @@ module.exports = function () {
     // correctly parse select nuerical values into valid ones
     select = JSON.parse(JSON.stringify(select).replace(/:"(\d|true|false)"/gi, ':$1'));
     // set the query select
-    request.baucis.query.select(select);
+    request.rested.query.select(select);
     next();
   });
   // Apply incoming request populate.
   this.query((request, response, next) => {
     let populate = request.query.populate;
-    let allowPopulateSelect = request.baucis.allowPopulateSelect;
+    let allowPopulateSelect = request.rested.allowPopulateSelect;
     let error = null;
     if (populate) {
       if (typeof populate === 'string') {
@@ -100,13 +100,13 @@ module.exports = function () {
       populate.forEach(field => {
         if (error) return;
         if (checkBadSelection(field.path || field))
-          return error = RestError.Forbidden('Including excluded fields is not permitted');
+          return error = errors.Forbidden('Including excluded fields is not permitted');
         // Don't allow selecting fields from client when populating
         if (field.select) {
-          if (!allowPopulateSelect) return error = RestError.Forbidden('Selecting fields of populated documents is not permitted');
+          if (!allowPopulateSelect) return error = errors.Forbidden('Selecting fields of populated documents is not permitted');
           //console.warn('WARNING: Allowing populate with select is experimental and bypasses security.');
         }
-        request.baucis.query.populate(field);
+        request.rested.query.populate(field);
       });
     }
     next(error);
@@ -116,17 +116,17 @@ module.exports = function () {
     let skip = request.query.skip;
     if (skip === undefined || skip === null) return next();
     if (!isNonNegativeInteger(skip))
-      return next(RestError.BadRequest('Skip must be a non-negative integer if set'));
-    request.baucis.query.skip(getAsInt(skip));
+      return next(errors.BadRequest('Skip must be a non-negative integer if set'));
+    request.rested.query.skip(getAsInt(skip));
     next();
   });
   // Apply incoming request limit.
   this.query((request, response, next) => {
-    let limit = request.baucis.query.op === 'findOne' ? 1 : request.query.limit;
+    let limit = request.rested.query.op === 'findOne' ? 1 : request.query.limit;
     if (limit === undefined || limit === null) return next();
     if (!isPositiveInteger(limit))
-      return next(RestError.BadRequest('Limit must be a positive integer if set'));
-    request.baucis.query.limit(getAsInt(limit));
+      return next(errors.BadRequest('Limit must be a positive integer if set'));
+    request.rested.query.limit(getAsInt(limit));
     next();
   });
   // Set count flag.
@@ -134,15 +134,15 @@ module.exports = function () {
     if (!request.query.count) return next();
     if (request.query.count === 'false') return next();
     if (request.query.count !== 'true')
-      return next(RestError.BadRequest('Count must be "true" or "false" if set'));
-    request.baucis.count = true;
+      return next(errors.BadRequest('Count must be "true" or "false" if set'));
+    request.rested.count = true;
     next();
   });
   // Check for query comment.
   this.query((request, response, next) => {
     let comment = request.query.comment;
     if (!comment) return next();
-    if (this.comments()) request.baucis.query.comment(comment);
+    if (this.comments()) request.rested.query.comment(comment);
     //else console.warn('Query comment was ignored.');
     next();
   });
@@ -151,11 +151,11 @@ module.exports = function () {
     let hint = request.query.hint;
     if (!hint) return next();
     if (!this.hints())
-      return next(RestError.Forbidden('Hints are not enabled for this resource'));
+      return next(errors.Forbidden('Hints are not enabled for this resource'));
     if (typeof hint === 'string') hint = JSON.parse(hint);
     // Convert the value for each path from stirng to number.
     Object.keys(hint).forEach(path => hint[path] = Number(hint[path]));
-    request.baucis.query.hint(hint);
+    request.rested.query.hint(hint);
     next();
   });
 };

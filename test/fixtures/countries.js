@@ -2,7 +2,7 @@ require('mongodb');
 const mongoose = require('mongoose');
 const express = require('express');
 const csv = require('csv-parser');
-const baucis = require('../..');
+const rested = require('../..');
 const fs = require('fs');
 
 let app;
@@ -111,11 +111,11 @@ module.exports = {
         await mongoose.connect(global.__MONGO_URI__);
         //await mongoose.connect('mongodb://localhost/test');
 
-        baucis.rest(Country);
+        rested.rest(Country);
         Country.select('-names');
 
         app = express();
-        app.use('/api', baucis());
+        app.use('/api', rested());
 
         fs.createReadStream('test/data/country-codes.csv').pipe(parser)
             .on('data', async row => row.isO31661Alpha3 ? await Country.replaceOne({ _id: row.isO31661Alpha3 }, row, { upsert: true }) : null)

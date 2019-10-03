@@ -1,11 +1,11 @@
 const supertest = require('supertest');
-const baucis = require('..');
+const rested = require('..');
 const fixture = require('./fixtures/versioning');
 
 describe('Versioning', () => {
   beforeAll(fixture.init);
   afterAll(fixture.deinit);
-  beforeEach(baucis.empty.bind(baucis));
+  beforeEach(rested.empty.bind(rested));
   const request = () => supertest(fixture.app());
 
   it('should use the highest release if no request version is specified', () =>
@@ -13,8 +13,8 @@ describe('Versioning', () => {
       .expect('accept-version', '3.0.1'));
 
   it('should cause an error when an invalid release is specified', () => {
-    let fn = () => baucis().releases('1.0.0').releases('abc');
-    expect(fn).toThrow(/^Release version "abc" is not a valid semver version [(]500[)][.]$/);
+    let fn = () => rested().releases('1.0.0').releases('abc');
+    expect(fn).toThrow(/^Release version "abc" is not a valid semver version$/);
   });
 
   it('should use the highest valid release in the requested version range', () =>
@@ -31,39 +31,39 @@ describe('Versioning', () => {
     request().get('/api/versioned/parties')
       .set('Accept-Version', '>3.0.1')
       // now is HTML / before was plain/text
-      .expect(400, /Bad Request: The requested API version range &quot;&gt;3.0.1&quot; could not be satisfied \(400\)\./)
+      .expect(400, /BadRequestError: The requested API version range &quot;&gt;3.0.1&quot; could not be satisfied/)
       // I would expect JSON instead of html as negociated with json: true in the caller
       .expect('content-type', /text\/html/)
       .then(({ headers }) => expect(headers).not.toHaveProperty('accept-version'))
   );
 
   xit('should catch controllers that are added twice to overlapping API dependencies', () => {
-    baucis.rest('party').versions('>0.0.0');
-    baucis.rest('party').versions('<2');
-    expect(baucis.bind(baucis)).toThrow(/^Controllers with path "\/parties" exist more than once in a release that overlaps "<2" [(]500[)][.]$/);
+    rested.rest('party').versions('>0.0.0');
+    rested.rest('party').versions('<2');
+    expect(rested.bind(rested)).toThrow(/^Controllers with path "\/parties" exist more than once in a release that overlaps "<2"$/);
   });
 
   xit('should catch controllers that are added twice to the same release', () => {
-    baucis.rest('party').versions('0.0.1');
-    baucis.rest('party').versions('0.0.1');
-    expect(baucis.bind(baucis)).toThrow(/^Controllers with path "\/parties" exist more than once in a release that overlaps "0.0.1" [(]500[)][.]$/);
+    rested.rest('party').versions('0.0.1');
+    rested.rest('party').versions('0.0.1');
+    expect(rested.bind(rested)).toThrow(/^Controllers with path "\/parties" exist more than once in a release that overlaps "0.0.1"$/);
   });
 
   it('should catch controllers with invalid version range', () => {
-    let fn = () => baucis.rest('party').versions('abc');
-    expect(fn).toThrow(/^Controller version range "abc" was not a valid semver range [(]500[)][.]$/);
+    let fn = () => rested.rest('party').versions('abc');
+    expect(fn).toThrow(/^Controller version range "abc" was not a valid semver range$/);
   });
 
   xit('should cause an error when a release has no controllers', () => {
-    baucis.rest('party').versions('1.5.7');
-    let fn = baucis.bind(baucis, { releases: ['0.0.1', '1.5.7'] });
-    expect(fn).toThrow(/^There are no controllers in release "0[.]0[.]1" [(]500[)][.]$/);
+    rested.rest('party').versions('1.5.7');
+    let fn = rested.bind(rested, { releases: ['0.0.1', '1.5.7'] });
+    expect(fn).toThrow(/^There are no controllers in release "0[.]0[.]1"$/);
   });
 
   xit("should catch controllers where the API version range doesn't satisfy any releases", () => {
-    baucis.rest('party').versions('0.0.1');
-    baucis.rest('party').versions('1.4.6');
-    expect(baucis.bind(baucis)).toThrow(/^The controller version range "1[.]4[.]6" doesn't satisfy any API release [(]500[)][.]$/);
+    rested.rest('party').versions('0.0.1');
+    rested.rest('party').versions('1.4.6');
+    expect(rested.bind(rested)).toThrow(/^The controller version range "1[.]4[.]6" doesn't satisfy any API release$/);
   });
 
   it('should work seamlessly when no versioning info is supplied', () =>
@@ -87,7 +87,7 @@ describe('Versioning', () => {
               .send({ title: 'Ranken', __v: 0 })
               .expect(409)
               .then(({ body }) =>
-                expect(body).toHaveProperty('message', 'The requested update would conflict with a previous update (409).')
+                expect(body).toHaveProperty('message', 'The requested update would conflict with a previous update')
               ))));
 
   it('should send "409 Conflict" if there is a version conflict (greater than)', () =>
@@ -101,7 +101,7 @@ describe('Versioning', () => {
           .send({ __v: body[0].__v + 10 })
           .expect(409)
           .then(({ body }) =>
-            expect(body).toHaveProperty('message', 'The requested update would conflict with a previous update (409).')
+            expect(body).toHaveProperty('message', 'The requested update would conflict with a previous update')
           );
       }));
 
@@ -119,7 +119,8 @@ describe('Versioning', () => {
       .then(({ body }) =>
         request().put('/api/versioned/pumpkins/' + body[0]._id)
           .send({ title: 'Forest Expansion' })
-          .expect(422, { message: 'Locking is enabled, but the target version was not provided in the request body.', name: 'RestError', path: '__v' })
+          .then(({ body }) =>
+            expect(body).toHaveProperty('message', 'Locking is enabled, but the target version key "__v" was not provided in the request body'))
       ))
 
 });

@@ -31,8 +31,8 @@ module.exports = function (options, protect) {
   };
   // Create the pipeline interface the user interacts with.
   this.request((request, response, next) => {
-    request.baucis.incoming = protect.pipeline(next);
-    request.baucis.outgoing = protect.pipeline(next);
+    request.rested.incoming = protect.pipeline(next);
+    request.rested.outgoing = protect.pipeline(next);
     next();
   });
 };

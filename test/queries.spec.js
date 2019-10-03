@@ -35,55 +35,55 @@ describe('Queries', () => {
   it('disallows selecting deselected fields', () =>
     request().get('/api/vegetables?select=species+lastModified')
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Including excluded fields is not permitted (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Including excluded fields is not permitted'))
   );
 
   it('disallows populating deselected fields 1', () =>
     request().get('/api/vegetables?populate=species')
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Including excluded fields is not permitted (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Including excluded fields is not permitted'))
   )
 
   it('disallows populating deselected fields 2', () =>
     request().get('/api/vegetables?populate={ "path": "species" }')
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Including excluded fields is not permitted (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Including excluded fields is not permitted'))
   );
 
   it('should support default express query parser when using populate', () =>
     request().get('/api/vegetables?populate[path]=species')
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Including excluded fields is not permitted (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Including excluded fields is not permitted'))
   );
 
   it('disallows using +fields with populate', () =>
     request().get('/api/vegetables?populate={ "select": "%2Bboiler" }')
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Selecting fields of populated documents is not permitted (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Selecting fields of populated documents is not permitted'))
   );
 
   it('disallows using +fields with select', () =>
     request().get('/api/vegetables?select=%2Bboiler')
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Including excluded fields is not permitted (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Including excluded fields is not permitted'))
   );
 
   it('disallows selecting fields when populating', () =>
     request().get('/api/vegetables?populate={ "path": "a", "select": "arbitrary" }')
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Selecting fields of populated documents is not permitted (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Selecting fields of populated documents is not permitted'))
   );
 
   it('should not crash when disallowing selecting fields when populating', () =>
     request().get('/api/vegetables?populate=[{ "path": "a", "select": "arbitrary actuary" }, { "path": "b", "select": "arbitrary actuary" }]')
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Selecting fields of populated documents is not permitted (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Selecting fields of populated documents is not permitted'))
   );
 
   it('disallows selecting fields when populating', () =>
     request().get('/api/vegetables?populate={ "path": "a", "select": "arbitrary" }')
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Selecting fields of populated documents is not permitted (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Selecting fields of populated documents is not permitted'))
   );
 
   it('allows populating children', () =>
@@ -177,7 +177,7 @@ describe('Queries', () => {
       .expect(400)
       .then(({ body, headers }) => {
         expect(headers).not.toHaveProperty('link');
-        expect(body).toHaveProperty('message', 'Limit must be a positive integer if set (400).');
+        expect(body).toHaveProperty('message', 'Limit must be a positive integer if set');
       })
   );
 
@@ -186,7 +186,7 @@ describe('Queries', () => {
       .expect(400)
       .then(({ body, headers }) => {
         expect(headers).not.toHaveProperty('link');
-        expect(body).toHaveProperty('message', 'Limit must be a positive integer if set (400).')
+        expect(body).toHaveProperty('message', 'Limit must be a positive integer if set')
       })
   );
 
@@ -195,7 +195,7 @@ describe('Queries', () => {
       .expect(400)
       .then(({ body, headers }) => {
         expect(headers).not.toHaveProperty('link');
-        expect(body).toHaveProperty('message', 'Limit must be a positive integer if set (400).')
+        expect(body).toHaveProperty('message', 'Limit must be a positive integer if set')
       })
   );
 
@@ -204,7 +204,7 @@ describe('Queries', () => {
       .expect(400)
       .then(({ body, headers }) => {
         expect(headers).not.toHaveProperty('link');
-        expect(body).toHaveProperty('message', 'Limit must be a positive integer if set (400).')
+        expect(body).toHaveProperty('message', 'Limit must be a positive integer if set')
       })
   );
 
@@ -213,7 +213,7 @@ describe('Queries', () => {
       .expect(400)
       .then(({ body, headers }) => {
         expect(headers).not.toHaveProperty('link');
-        expect(body).toHaveProperty('message', 'Skip must be a non-negative integer if set (400).')
+        expect(body).toHaveProperty('message', 'Skip must be a non-negative integer if set')
       })
   );
 
@@ -222,7 +222,7 @@ describe('Queries', () => {
       .expect(400)
       .then(({ body, headers }) => {
         expect(headers).not.toHaveProperty('link');
-        expect(body).toHaveProperty('message', 'Count must be "true" or "false" if set (400).')
+        expect(body).toHaveProperty('message', 'Count must be "true" or "false" if set')
       })
   );
 
@@ -360,7 +360,7 @@ describe('Queries', () => {
   it('should report bad hints', () =>
     request().get('/api/vegetables?hint={ "foogle": 1 }')
       .expect(400)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'The requested query hint is invalid (400).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'The requested query hint is invalid'))
   );
 
   it('allow using hint with count', () =>
@@ -393,7 +393,7 @@ describe('Queries', () => {
   it('should not allow adding an index hint if not enabled', () =>
     request().get('/api/fungi?hint={ "_id": 1 }')
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Hints are not enabled for this resource (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Hints are not enabled for this resource'))
   );
 
   it('should ignore query comments if not enabled', () =>
@@ -439,7 +439,7 @@ describe('Queries', () => {
   it('should not allow querying for distinct values of deselected paths', () =>
     request().get('/api/fungi?distinct=hyphenated-field-name')
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'You may not find distinct values for the requested path (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'You may not find distinct values for the requested path'))
   );
 
 
@@ -456,13 +456,13 @@ describe('Queries', () => {
   it('should give a 400 if the query string is unpar using query operators with _id', () =>
     request().get('/api/vegetables?conditions={ \'_id\': { \'$gt\': \'111111111111111111111111\' } }')
       .expect(400)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'The conditions query string value was not valid JSON: "Unexpected token \' in JSON at position 2" (400).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'The conditions query string value was not valid JSON: "Unexpected token \' in JSON at position 2"'))
   );
 
   it('disallows $explain by default', () =>
     request().get('/api/vegetables?conditions={ "$explain": true }')
       .expect(400)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Using $explain is disabled for this resource (400).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Using $explain is disabled for this resource'))
   )
 
 });

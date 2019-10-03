@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const deco = require('deco');
 const async = require('async');
-const baucis = require('../..');
+const rested = require('../..');
 
 // __Private Module Members__
 let app;
@@ -34,11 +34,11 @@ module.exports = {
   init: done => {
     mongoose.connect(global.__MONGO_URI__);
 
-    baucis.rest(Liqueur);
-    baucis.rest(Amaro);
+    rested.rest(Liqueur);
+    rested.rest(Amaro);
 
     app = express();
-    app.use('/api', baucis());
+    app.use('/api', rested());
     server = app.listen(done);
   },
   create: done => {

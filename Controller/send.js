@@ -70,33 +70,33 @@ const lastModified = (response, lastModifiedPath, useTrailer) => {
 };
 
 module.exports = function (options, protect) {
-  const baucis = require('..');
+  const rested = require('..');
   const lastModifiedPath = this.model().lastModified();
   // If counting get the count and send it back directly.
   protect.finalize((request, response, next) => {
-    if (!request.baucis.count) return next();
-    if (!Array.isArray(request.baucis.documents))
-      return request.baucis.query.count((error, n) => {
+    if (!request.rested.count) return next();
+    if (!Array.isArray(request.rested.documents))
+      return request.rested.query.count((error, n) => {
         if (!error)
-          request.baucis.documents = n;
+          request.rested.documents = n;
         next(error);
       });
-    request.baucis.documents = request.baucis.documents.length;
+    request.rested.documents = request.rested.documents.length;
     next();
   });
   // If not counting, create the basic stream pipeline.
   protect.finalize('collection', 'all', (request, response, next) => {
     let count = 0;
-    let documents = request.baucis.documents;
-    let pipeline = request.baucis.send = protect.pipeline(next);
-    // If documents were set in the baucis hash, use them.
+    let documents = request.rested.documents;
+    let pipeline = request.rested.send = protect.pipeline(next);
+    // If documents were set in the hash, use them.
     if (documents !== undefined) pipeline(from.obj((size, nxt) => {
       let chunk = documents !== undefined ? documents : null;
       documents = undefined;
       nxt(null, chunk);
     }));
     // Otherwise, stream the relevant documents from Mongo, based on constructed query.
-    else pipeline(request.baucis.query.cursor());
+    else pipeline(request.rested.query.cursor());
     // Check for not found.
     pipeline(through.obj(
       function (context, enc, callback) { ++count; this.emit('data', context); callback() },
@@ -106,26 +106,26 @@ module.exports = function (options, protect) {
         this.emit('end');
       }));
     // Apply user streams.
-    pipeline(request.baucis.outgoing());
+    pipeline(request.rested.outgoing());
     // Set the document formatter based on the Accept header of the request.
-    baucis.formatters(response, (error, formatter) => {
-      if (!error) request.baucis.formatter = formatter;
+    rested.formatters(response, (error, formatter) => {
+      if (!error) request.rested.formatter = formatter;
       next(error);
     });
   });
 
   protect.finalize('instance', 'all', (request, response, next) => {
     let count = 0;
-    let documents = request.baucis.documents;
-    let pipeline = request.baucis.send = protect.pipeline(next);
-    // If documents were set in the baucis hash, use them.
+    let documents = request.rested.documents;
+    let pipeline = request.rested.send = protect.pipeline(next);
+    // If documents were set in the hash, use them.
     if (documents !== undefined) pipeline(from.obj((size, nxt) => {
       let chunk = documents !== undefined ? documents : null;
       documents = undefined;
       nxt(null, chunk);
     }));
     // Otherwise, stream the relevant documents from Mongo, based on constructed query.
-    else pipeline(request.baucis.query.cursor());
+    else pipeline(request.rested.query.cursor());
     // Check for not found.
     pipeline(through.obj(
       function (context, enc, callback) { ++count; this.emit('data', context); callback() },
@@ -135,83 +135,83 @@ module.exports = function (options, protect) {
         this.emit('end');
       }));
     // Apply user streams.
-    pipeline(request.baucis.outgoing());
+    pipeline(request.rested.outgoing());
     // Set the document formatter based on the Accept header of the request.
-    baucis.formatters(response, (error, formatter) => {
-      if (!error) request.baucis.formatter = formatter;
+    rested.formatters(response, (error, formatter) => {
+      if (!error) request.rested.formatter = formatter;
       next(error);
     });
   });
 
-  // OPTIONS // TODO Express' extra handling for OPTIONS conflicts with baucis
+  // OPTIONS // TODO Express' extra handling for OPTIONS conflicts
   // TODO maybe send method names in body
   // controller.options(function (request, response, next) {
   //   console.log('here')
-  //   request.baucis.send(empty);
+  //   request.rested.send(empty);
   //   next();
   // });
 
   // HEAD
   protect.finalize('instance', 'head', (request, response, next) => {
     if (lastModifiedPath)
-      request.baucis.send(lastModified(response, lastModifiedPath, false));
-    request.baucis.send(etagImmediate(response));
-    request.baucis.send(request.baucis.formatter());
-    request.baucis.send(empty);
+      request.rested.send(lastModified(response, lastModifiedPath, false));
+    request.rested.send(etagImmediate(response));
+    request.rested.send(request.rested.formatter());
+    request.rested.send(empty);
     next();
   });
   // HEAD*
   protect.finalize('collection', 'head', (request, response, next) => {
     if (lastModifiedPath)
-      request.baucis.send(lastModified(response, lastModifiedPath, false));
-    request.baucis.send(request.baucis.formatter(true));
-    request.baucis.send(etag(response, false));
-    request.baucis.send(empty);
+      request.rested.send(lastModified(response, lastModifiedPath, false));
+    request.rested.send(request.rested.formatter(true));
+    request.rested.send(etag(response, false));
+    request.rested.send(empty);
     next();
   });
   // GET
   protect.finalize('instance', 'get', (request, response, next) => {
     if (lastModifiedPath)
-      request.baucis.send(lastModified(response, lastModifiedPath, false));
-    request.baucis.send(etagImmediate(response));
-    request.baucis.send(request.baucis.formatter());
+      request.rested.send(lastModified(response, lastModifiedPath, false));
+    request.rested.send(etagImmediate(response));
+    request.rested.send(request.rested.formatter());
     next();
   });
   // GET*
   protect.finalize('collection', 'get', (request, response, next) => {
     if (lastModifiedPath)
-      request.baucis.send(lastModified(response, lastModifiedPath, true));
+      request.rested.send(lastModified(response, lastModifiedPath, true));
     /* ERR_HTTP_TRAILER_INVALID]: Trailers are invalid with this transfer encoding
      * https://github.com/wprl/baucis/issues/330 */
-    //request.baucis.send(etag(response, true));
-    request.baucis.send(request.baucis.formatter(request.baucis.documents === undefined));
+    //request.rested.send(etag(response, true));
+    request.rested.send(request.rested.formatter(request.rested.documents === undefined));
     next();
   });
   // POST
   protect.finalize('collection', 'post', (request, response, next) => {
-    request.baucis.send(request.baucis.formatter());
+    request.rested.send(request.rested.formatter());
     next();
   });
   // PUT
   protect.finalize('put', (request, response, next) => {
-    request.baucis.send(request.baucis.formatter());
+    request.rested.send(request.rested.formatter());
     next();
   });
   // DELETE
   protect.finalize('delete', (request, response, next) => {
     let deleted = 0;
     // Remove each document from the database.
-    request.baucis.send((context, callback) => context.deleteOne(callback));
+    request.rested.send((context, callback) => context.deleteOne(callback));
     // Respond with the count of deleted documents.
-    request.baucis.send(through.obj(
+    request.rested.send(through.obj(
       (context, enc, callback) => ++deleted && callback(),
       function () { this.emit('data', deleted); this.emit('end'); }));
-    request.baucis.send(request.baucis.formatter());
+    request.rested.send(request.rested.formatter());
     next();
   });
   // STREAM OUT
   protect.finalize((request, response, next) => {
-    let stream = request.baucis.send();
+    let stream = request.rested.send();
     let query = stream.domain.members[0];
     response.on('drain', () => query.resume());
     response.on('close', () =>

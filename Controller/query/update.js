@@ -1,11 +1,11 @@
 const from = require('from2');
 const through = require('through2');
-const RestError = require('rest-error');
+const errors = require('http-errors');
 
 const validOperators = ['$set', '$push', '$pull', '$addToSet', '$pop', '$pushAll', '$pullAll'];
 
 module.exports = function (options, protect) {
-  const baucis = require('../..');
+  const rested = require('../..');
   const checkBadUpdateOperatorPaths = (operator, paths) => {
     let whitelisted = this.operators(operator);
     if (!whitelisted) return true;
@@ -25,8 +25,8 @@ module.exports = function (options, protect) {
       pipeline(from.obj((size, nxt) => nxt(null, documents.shift() || null)));
     } else {
       // Otherwise, stream and parse the request.
-      let parser = baucis.parser(request.get('content-type'));
-      if (!parser) return next(RestError.UnsupportedMediaType());
+      let parser = rested.parser(request.get('content-type'));
+      if (!parser) return next(errors.UnsupportedMediaType());
       pipeline(request);
       pipeline(parser);
     }
@@ -34,38 +34,39 @@ module.exports = function (options, protect) {
     pipeline((body, callback) => callback(null, { doc: undefined, incoming: body }));
     // Load the Mongoose document and add it to the context, unless this is a special update operator.
     if (!operator) pipeline((context, callback) =>
-      this.model().findOne(request.baucis.conditions).exec((error, doc) => {
+      this.model().findOne(request.rested.conditions).exec((error, doc) => {
         if (error) return callback(error);
-        if (!doc) return callback(RestError.NotFound());
+        if (!doc) return callback(errors.NotFound('Nothing matched the requested query'));
         // Add the Mongoose document to the context.
         callback(null, { doc: doc, incoming: context.incoming });
       }));
     // Pipe through user streams, if any.
-    pipeline(request.baucis.incoming());
+    pipeline(request.rested.incoming());
     // If the document ID is present, ensure it matches the ID in the URL.
     pipeline((context, callback) => {
       let bodyId = context.incoming[this.findBy()];
       if (bodyId === undefined) return callback(null, context);
       if (bodyId === request.params.id) return callback(null, context);
-      callback(RestError.UnprocessableEntity({ message: "The ID of the update document did not match the URL's document ID.", name: 'RestError', path: this.findBy(), value: bodyId }));
+      callback(errors.UnprocessableEntity(`The ${this.findBy()} of the update document did not match the URL's document ID of "${bodyId}"`));
     });
     // Ensure the request includes a finite object version if locking is enabled.
     if (this.model().locking()) {
       pipeline((context, callback) =>
         context.incoming[versionKey] !== undefined && Number.isFinite(Number(context.incoming[versionKey])) ? callback(null, context) :
-          callback(RestError.UnprocessableEntity({ message: 'Locking is enabled, but the target version was not provided in the request body.', name: 'RestError', path: versionKey }))
+          callback(errors.UnprocessableEntity(`Locking is enabled, but the target version key "${versionKey}" was not provided in the request body`))
       );
       // Add some locking checks only applicable to the default update operator.
       if (!operator) {
         // Make sure the version key was selected.
         pipeline((context, callback) =>
           context.doc.isSelected(versionKey) ? callback(null, context) :
-            callback(RestError.BadRequest('The version key "%s" must be selected', versionKey))
+            callback(errors.BadRequest(`The version key "${versionKey}" must be selected`))
         );
         pipeline((context, callback) => {
           let updateVersion = Number(context.incoming[versionKey]);
-          // Update and current version have been found.  Check if they're equal.
-          if (updateVersion !== context.doc[versionKey]) return callback(RestError.LockConflict());
+          // Update and current version have been found. Check if they're equal.
+          if (updateVersion !== context.doc[versionKey])
+            return callback(errors.Conflict('The requested update would conflict with a previous update'));
           // One is not allowed to set __v and increment in the same update.
           delete context.incoming[versionKey];
           context.doc.increment();
@@ -76,12 +77,12 @@ module.exports = function (options, protect) {
     }
     // Ensure there is exactly one update document.
     pipeline(through.obj(function (context, enc, callback) {
-      ++count === 2 ? this.emit('error', RestError.UnprocessableEntity({ message: 'The request body contained more than one update document', name: 'RestError' })) :
+      ++count === 2 ? this.emit('error', errors.UnprocessableEntity('The request body contained more than one update document')) :
         count === 1 ? this.emit('data', context) : void 0;
       callback();
     }, function () {
       count > 0 ? this.emit('end') :
-        this.emit('error', RestError.UnprocessableEntity({ message: 'The request body did not contain an update document', name: 'RestError' }));
+        this.emit('error', errors.UnprocessableEntity('The request body did not contain an update document'));
     }));
     // Finish up for the default update operator.
     if (!operator) {
@@ -99,18 +100,18 @@ module.exports = function (options, protect) {
       pipeline((context, callback) => {
         let wrapper = {};
         if (validOperators.indexOf(operator) === -1)
-          return callback(RestError.NotImplemented('The requested update operator "%s" is not supported', operator));
+          return callback(errors.NotImplemented(`The requested update operator "${operator}" is not supported`));
         // Ensure that some paths have been enabled for the operator.
         if (!this.operators(operator))
-          return callback(RestError.Forbidden('The requested update operator "%s" is not enabled for this resource', operator));
+          return callback(errors.Forbidden(`The requested update operator "${operator}" is not enabled for this resource`));
         // Make sure paths have been whitelisted for this operator.
         if (checkBadUpdateOperatorPaths(operator, Object.keys(context.incoming)))
-          return callback(RestError.Forbidden('This update path is forbidden for the requested update operator "%s"', operator));
+          return callback(errors.Forbidden(`This update path is forbidden for the requested update operator "${operator}"`));
         wrapper[operator] = context.incoming;
         if (this.model().locking())
-          request.baucis.conditions[versionKey] = Number(context.incoming[versionKey]);
+          request.rested.conditions[versionKey] = Number(context.incoming[versionKey]);
         // Update the doc using the supplied operator and bypassing validation.
-        this.model().updateOne(request.baucis.conditions, wrapper, callback);
+        this.model().updateOne(request.rested.conditions, wrapper, callback);
       });
     let s = pipeline();
     s.on('end', next);

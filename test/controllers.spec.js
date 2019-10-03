@@ -1,6 +1,6 @@
 const supertest = require('supertest');
 const mongoose = require('mongoose');
-const baucis = require('..');
+const rested = require('..');
 const fixture = require('./fixtures/controller');
 
 describe('Controllers', () => {
@@ -10,28 +10,28 @@ describe('Controllers', () => {
   const request = () => supertest(fixture.app());
 
   it('should allow passing string name to create', () => {
-    let makeController = () => baucis.Controller('unmade');
+    let makeController = () => rested.Controller('unmade');
     expect(makeController).not.toThrow();
   });
 
   it('should allow passing a model to create', () => {
-    let makeController = () => baucis.Controller(mongoose.model('unmade'));
+    let makeController = () => rested.Controller(mongoose.model('unmade'));
     expect(makeController).not.toThrow();
   });
 
   it('should not allow leaving off arguments to create', () => {
-    let makeController = () => baucis.Controller();
-    expect(makeController).toThrow(/You must pass in a model or model name \(500\)\./);
+    let makeController = () => rested.Controller();
+    expect(makeController).toThrow(/You must pass in a model or model name/);
   });
 
   it('should not allow weird arguments to create', () => {
-    let makeController = () => baucis.Controller({});
-    expect(makeController).toThrow(/You must pass in a model or model name \(500\)\./);
+    let makeController = () => rested.Controller({});
+    expect(makeController).toThrow(/You must pass in a model or model name/);
   });
 
   it('should have methods set by default', () => {
     let controller;
-    let makeController = () => controller = baucis.Controller('unmade');
+    let makeController = () => controller = rested.Controller('unmade');
     expect(makeController).not.toThrow();
     expect(controller.methods()).toEqual(['head', 'get', 'put', 'post', 'delete']);
   });
@@ -109,15 +109,15 @@ describe('Controllers', () => {
       ));
 
   xit('should disallow adding a non-unique findBy field', () => {
-    let makeController = () => baucis.Controller('cheese').findBy('color');
-    expect(makeController).toThrow(/^`findBy` path for model "cheese" must be unique \(500\)\.$/);
+    let makeController = () => rested.Controller('cheese').findBy('color');
+    expect(makeController).toThrow(/^`findBy` path for model "cheese" must be unique$/);
   });
 
   it('should allow adding a uniqe findBy field 1', () => {
     let makeController = () => {
       let rab = new mongoose.Schema({ 'arb': { type: String, unique: true } });
       mongoose.model('rab', rab);
-      baucis.Controller('rab').findBy('arb');
+      rested.Controller('rab').findBy('arb');
     };
     expect(makeController).not.toThrow();
   });
@@ -126,7 +126,7 @@ describe('Controllers', () => {
     let makeController = () => {
       let barb = new mongoose.Schema({ 'arb': { type: String, index: { unique: true } } });
       mongoose.model('barb', barb);
-      baucis.Controller('barb').findBy('arb');
+      rested.Controller('barb').findBy('arb');
     };
     expect(makeController).not.toThrow();
   });
@@ -142,7 +142,7 @@ describe('Controllers', () => {
         expect(body).toEqual('XYZ')
       ));
 
-  it('should still allow using baucis routes when adding arbitrary routes', () =>
+  it('should still allow using routes when adding arbitrary routes', () =>
     request().get('/api/stores')
       .query({ select: '-_id -__v', sort: 'name' })
       .expect(200)
@@ -165,19 +165,19 @@ describe('Controllers', () => {
       ));
 
   it('should disallow unrecognized verbs', () => {
-    let controller = baucis.Controller('store');
+    let controller = rested.Controller('store');
     let register = () => controller.request('get dude', () => { });
-    expect(register).toThrow(/^Unrecognized HTTP method: "dude" \(500\)\.$/);
+    expect(register).toThrow(/^Unrecognized HTTP method: "dude"$/);
   });
 
   it('should disallow unrecognized howManys', () => {
-    let controller = baucis.Controller('store');
+    let controller = rested.Controller('store');
     let register = () => controller.request('gargoyle', 'get put', () => { });
-    expect(register).toThrow(/^End-point type must be either "instance" or "collection," not "gargoyle" \(500\)\.$/);
+    expect(register).toThrow(/^End-point type must be either "instance" or "collection," not "gargoyle"$/);
   });
 
   it('should allow specifying instance or collection middleware', () => {
-    let controller = baucis.Controller('store');
+    let controller = rested.Controller('store');
     let register = () => {
       controller.request('collection', 'get put head delete post', () => { });
       controller.request('instance', 'get put head delete post', () => { });
@@ -186,13 +186,13 @@ describe('Controllers', () => {
   });
 
   it('should allow registering query middleware for other verbs', () => {
-    let controller = baucis.Controller('store');
+    let controller = rested.Controller('store');
     let register = () => controller.query('get put head delete', () => { });
     expect(register).not.toThrow();
   });
 
   it('should allow registering POST middleware for other stages', () => {
-    let controller = baucis.Controller('store');
+    let controller = rested.Controller('store');
     let register = () => {
       controller.request('post', () => { });
       controller.query('post', () => { });
@@ -203,7 +203,7 @@ describe('Controllers', () => {
   it('should correctly set the deselected paths property', () => {
     let doozle = new mongoose.Schema({ a: { type: String, select: false }, b: String, c: String, d: String });
     mongoose.model('doozle', doozle);
-    let controller = baucis.Controller('doozle').select('-d c -a b');
+    let controller = rested.Controller('doozle').select('-d c -a b');
     expect(controller.deselected()).toEqual(['a', 'd']);
   });
 
@@ -213,7 +213,7 @@ describe('Controllers', () => {
       .set('Update-Operator', '$push')
       .expect(403)
       .then(({ body }) =>
-        expect(body).toHaveProperty('message', 'The requested update operator "$push" is not enabled for this resource (403).')
+        expect(body).toHaveProperty('message', 'The requested update operator "$push" is not enabled for this resource')
       ));
 
   it('should disallow pushing to non-whitelisted paths', () =>
@@ -222,7 +222,7 @@ describe('Controllers', () => {
       .send({ 'favorite nes game': 'bubble bobble' })
       .expect(403)
       .then(({ body }) =>
-        expect(body).toHaveProperty('message', 'This update path is forbidden for the requested update operator "$push" (403).')
+        expect(body).toHaveProperty('message', 'This update path is forbidden for the requested update operator "$push"')
       ));
 
   it("should allow pushing to an instance document's whitelisted arrays when $push mode is enabled", () =>
@@ -242,7 +242,7 @@ describe('Controllers', () => {
       .send({ molds: 'penicillium roqueforti', __v: 0 })
       .expect(403)
       .then(({ body }) =>
-        expect(body).toHaveProperty('message', 'The requested update operator "$pull" is not enabled for this resource (403).')
+        expect(body).toHaveProperty('message', 'The requested update operator "$pull" is not enabled for this resource')
       ));
 
   it('should disallow pulling non-whitelisted paths', () =>
@@ -251,7 +251,7 @@ describe('Controllers', () => {
       .send({ 'favorite nes game': 'bubble bobble' })
       .expect(403)
       .then(({ body }) =>
-        expect(body).toHaveProperty('message', 'This update path is forbidden for the requested update operator "$pull" (403).')
+        expect(body).toHaveProperty('message', 'This update path is forbidden for the requested update operator "$pull"')
       ));
 
   it("should allow pulling from an instance document's whitelisted arrays when $pull mode is enabled", () =>
@@ -280,7 +280,7 @@ describe('Controllers', () => {
       .send({ molds: 'penicillium roqueforti', __v: 0 })
       .expect(403)
       .then(({ body }) =>
-        expect(body).toHaveProperty('message', 'The requested update operator "$set" is not enabled for this resource (403).')
+        expect(body).toHaveProperty('message', 'The requested update operator "$set" is not enabled for this resource')
       ));
 
   it('should disallow setting non-whitelisted paths', () =>
@@ -289,7 +289,7 @@ describe('Controllers', () => {
       .send({ 'favorite nes game': 'bubble bobble' })
       .expect(403)
       .then(({ body }) =>
-        expect(body).toHaveProperty('message', 'This update path is forbidden for the requested update operator "$set" (403).')
+        expect(body).toHaveProperty('message', 'This update path is forbidden for the requested update operator "$set"')
       ));
 
   it("should allow setting an instance document's whitelisted paths when $set mode is enabled", () =>
@@ -361,7 +361,7 @@ describe('Controllers', () => {
       .expect(405)
       .then(({ headers, body }) => {
         expect(headers).toHaveProperty('allow', 'HEAD,POST,PUT,DELETE');
-        expect(body).toHaveProperty('message', 'The requested method has been disabled for this resource (405).');
+        expect(body).toHaveProperty('message', 'The requested method has been disabled for this resource');
       }));
 
   it('should send 405 when a verb is disabled (DELETE)', () =>
@@ -369,21 +369,21 @@ describe('Controllers', () => {
       .expect(405)
       .then(({ headers, body }) => {
         expect(headers).toHaveProperty('allow', 'HEAD,GET,POST,PUT');
-        expect(body).toHaveProperty('message', 'The requested method has been disabled for this resource (405).');
+        expect(body).toHaveProperty('message', 'The requested method has been disabled for this resource');
       }));
 
   it('should return a 400 when ID malformed (not ObjectID)', () =>
     request().get('/api/beans/bad')
       .expect(400)
       .then(({ body }) =>
-        expect(body).toHaveProperty('message', 'The requested document ID "bad" is not a valid document ID (400).')
+        expect(body).toHaveProperty('message', 'The requested document ID "bad" is not a valid document ID')
       ));
 
   it('should return a 400 when ID malformed (not Number)', () =>
     request().get('/api/deans/0booze')
       .expect(400)
       .then(({ body }) =>
-        expect(body).toHaveProperty('message', 'The requested document ID "0booze" is not a valid document ID (400).')
+        expect(body).toHaveProperty('message', 'The requested document ID "0booze" is not a valid document ID')
       ));
 
   it('should allow setting path different from model name', () =>
@@ -428,7 +428,7 @@ describe('Controllers', () => {
       .then(() =>
         request().post('/api-no-error-handler/geese')
           .send({ name: 'Gorgonzola', color: 'Green' })
-          .expect(422, /Unprocessable Entity: The request entity could not be processed \(422\)/)
+          .expect(422, /Unprocessable Entity/)
       ));
 
   it('should allow setting path apart from plural', () =>

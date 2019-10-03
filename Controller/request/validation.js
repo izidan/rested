@@ -1,5 +1,5 @@
 // __Dependencies__
-const RestError = require('rest-error');
+const errors = require('http-errors');
 
 // __Module Definition__
 module.exports = function (options, protect) {
@@ -15,14 +15,14 @@ module.exports = function (options, protect) {
     let id = request.params.id;
     let instance = (this.model().schema.path(this.findBy()) || {}).instance || 'String';
     let invalid = protect.isInvalid(request.params.id, instance, 'url.id');
-    next(invalid ? RestError.BadRequest('The requested document ID "%s" is not a valid document ID', id) : undefined);
+    next(invalid ? errors.BadRequest(`The requested document ID "${id}" is not a valid document ID`) : undefined);
   });
   // Check that the HTTP method has not been disabled for this controller.
   this.request((request, response, next) =>
-    next(this.methods(request.method.toLowerCase()) === false ? RestError.MethodNotAllowed('The requested method has been disabled for this resource') : undefined));
+    next(this.methods(request.method.toLowerCase()) === false ? errors.MethodNotAllowed('The requested method has been disabled for this resource') : undefined));
   // Treat the addressed document as a collection, and push the addressed object to it. (Not implemented.) TODO
   this.request('instance', 'post', (request, response, next) =>
-    next(RestError.NotImplemented('Cannot POST to an instance')));
+    next(errors.NotImplemented('Cannot POST to an instance')));
   // Update all given docs. (Not implemented.) TODO
-  this.request('collection', 'put', (request, response, next) => next(RestError.NotImplemented('Cannot PUT to the collection')));
+  this.request('collection', 'put', (request, response, next) => next(errors.NotImplemented('Cannot PUT to the collection')));
 };

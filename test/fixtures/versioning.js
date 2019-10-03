@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const express = require('express');
-const baucis = require('../..');
+const rested = require('../..');
 
 let app;
 let server;
@@ -28,16 +28,16 @@ module.exports = {
 
     app = express();
 
-    baucis.rest('pumpkin');
-    baucis.rest('party').versions('1.x');
-    baucis.rest('party').versions('2.1.0');
-    baucis.rest('party').versions('~3');
+    rested.rest('pumpkin');
+    rested.rest('party').versions('1.x');
+    rested.rest('party').versions('2.1.0');
+    rested.rest('party').versions('~3');
 
-    app.use('/api/versioned', baucis().releases('1.0.0').releases('2.1.0').releases('3.0.1'));
+    app.use('/api/versioned', rested().releases('1.0.0').releases('2.1.0').releases('3.0.1'));
 
-    baucis.rest('dungeon');
+    rested.rest('dungeon');
 
-    app.use('/api/unversioned', baucis());
+    app.use('/api/unversioned', rested());
 
     server = app.listen(done);
   }

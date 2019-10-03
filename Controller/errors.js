@@ -1,11 +1,11 @@
 // __Dependencies__
 const from = require('from2');
 const mongoose = require('mongoose');
-const RestError = require('rest-error');
+const errors = require('http-errors');
 
 // __Module Definition__
 module.exports = function (options, protect) {
-  const baucis = require('..');
+  const rested = require('..');
   // A controller property that sets whether errors should be
   // handled if possible, or just set status code.
   protect.property('handleErrors', true, handle => handle ? true : false);
@@ -16,14 +16,14 @@ module.exports = function (options, protect) {
     let message = 'The requested query hint is invalid'
     // Bad Mongo query hint (2.x).
     if (error.message === 'bad hint')
-      return next(RestError.BadRequest(message));
+      return next(errors.BadRequest(message));
     // Bad Mongo query hint (3.x).
     if (error.message.match('planner returned error: bad hint'))
-      return next(RestError.BadRequest(message));
+      return next(errors.BadRequest(message));
     if (!error.$err) return next(error);
     // Mongoose 3
     if (error.$err.match('planner returned error: bad hint'))
-      return next(RestError.BadRequest(message));
+      return next(errors.BadRequest(message));
     next(error);
   });
   // Convert Mongo duplicate key error to an unprocessible entity error
@@ -44,7 +44,7 @@ module.exports = function (options, protect) {
       type: 'unique',
       value: value
     };
-    let translatedError = RestError.UnprocessableEntity();
+    let translatedError = errors.UnprocessableEntity();
     translatedError.errors = body;
     next(translatedError);
   });
@@ -52,7 +52,7 @@ module.exports = function (options, protect) {
   protect.use((error, request, response, next) => {
     if (!error) return next();
     if (!(error instanceof mongoose.Error.ValidationError)) return next(error);
-    let newError = RestError.UnprocessableEntity();
+    let newError = errors.UnprocessableEntity();
     newError.errors = error.errors;
     next(newError);
   });
@@ -60,13 +60,13 @@ module.exports = function (options, protect) {
   protect.use((error, request, response, next) => {
     if (!error) return next();
     if (!(error instanceof mongoose.Error.VersionError)) return next(error);
-    next(RestError.LockConflict());
+    next(errors.Conflict());
   });
   // Translate other errors to internal server errors.
   protect.use((error, request, response, next) => {
     if (!error) return next();
-    if (error instanceof RestError) return next(error);
-    let error2 = RestError.InternalServerError(error.message);
+    if (error instanceof Error && !isNaN(error.status)) return next(error);
+    let error2 = errors.InternalServerError(error.message);
     error2.stack = error.stack;
     next(error2);
   });
@@ -77,7 +77,7 @@ module.exports = function (options, protect) {
     if (error.status >= 100)
       response.status(error.status);
     if (!this.handleErrors()) return next(error);
-    baucis.formatters(response, (error2, formatter) => {
+    rested.formatters(response, (error2, formatter) => {
       if (error2) return next(error2);
       let errors = error.errors || [error];
       if (!Array.isArray(errors))

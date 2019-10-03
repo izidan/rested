@@ -1,11 +1,11 @@
 // __Module Definition__
 module.exports = function () {
   this.query('collection', '*', (request, response, next) => {
-    request.baucis.query = this.model().find(request.baucis.conditions);
+    request.rested.query = this.model().find(request.rested.conditions);
     next();
   });
   this.query('instance', '*', (request, response, next) => {
-    request.baucis.query = this.model().findOne(request.baucis.conditions);
+    request.rested.query = this.model().findOne(request.rested.conditions);
     next();
   });
 };

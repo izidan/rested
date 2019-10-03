@@ -49,7 +49,9 @@ describe('Inheritence', () => {
   it('should give a 422 if the discriminator does not exist', () =>
     request().post('/api/liqueurs')
       .send({ name: 'Oud Bruin', __t: 'ale' })
-      .expect(422, { message: 'A document\'s type did not match any known discriminators for this resource', name: 'RestError', path: '__t', value: 'ale' })
+      .expect(422)
+      .then(({ body }) =>
+        expect(body).toHaveProperty('message', 'A document\'s type "ale" did not match any known discriminators for this resource'))
   );
 
 });

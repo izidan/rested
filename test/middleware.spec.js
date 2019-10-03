@@ -69,7 +69,7 @@ describe('Middleware', () => {
       .query({ failIt: true })
       .send({ name: 'zoom' })
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Bento box (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Bento box'))
   );
 
   it('should handle errors in user streams (IN/PUT)', () => {
@@ -78,7 +78,7 @@ describe('Middleware', () => {
       .query({ failIt: true })
       .send({ name: 'zoom' })
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Bento box (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Bento box'))
   });
 
   it('should handle errors in user streams (FUNCTION)', () =>
@@ -86,14 +86,14 @@ describe('Middleware', () => {
       .query({ failItFunction: true })
       .send({ name: 'zoom' })
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Bento box (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Bento box'))
   );
 
   it('should handle errors in user streams (OUT)', () =>
     request().get('/api/vegetables/')
       .query({ failIt2: true })
       .expect(403)
-      .then(({ body }) => expect(body).toHaveProperty('message', 'Bento box (403).'))
+      .then(({ body }) => expect(body).toHaveProperty('message', 'Bento box'))
   );
 
   it('should skip streaming documents in if request.body is already present', () =>
@@ -130,7 +130,7 @@ describe('Middleware', () => {
   );
 
   //it('should prevent mixing streaming and documents middleware (maybe)');
-  xit('should allow streaming out into request.baucis.documents (maybe)', () =>
+  xit('should allow streaming out into request.rested.documents (maybe)', () =>
     request().get('/api/vegetables/')
       .query({ streamToArray: true })
       .expect(201)
@@ -142,12 +142,12 @@ describe('Middleware', () => {
       })
   );
 
-  xit('should 404 if request.baucis.documents is undefined, null, or 0 (maybe)', () =>
+  xit('should 404 if request.rested.documents is undefined, null, or 0 (maybe)', () =>
     request().get('/api/vegetables/')
       .expect(404, 1234)
   );
 
-  it('should skip streaming documents out if request.baucis.documents is present', () =>
+  it('should skip streaming documents out if request.rested.documents is present', () =>
     request().get('/api/vegetables/')
       .query({ creamIt: true })
       .expect(200, ['Devonshire Clotted Cream.'])

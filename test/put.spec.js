@@ -34,7 +34,9 @@ describe('PUT singular', () => {
         expect(body).toHaveProperty('name', 'Radicchio');
         // put the leek on the server
         return request().put('/api/vegetables/' + radicchio._id)
-          .expect(422, { message: 'The request body did not contain an update document', name: 'RestError' });
+          .expect(422)
+          .then(({ body }) =>
+            expect(body).toHaveProperty('message', 'The request body did not contain an update document'))
       });
   });
 
@@ -47,7 +49,9 @@ describe('PUT singular', () => {
         // Put some veggies on the server.
         return request().put('/api/vegetables/' + radicchio._id)
           .send([{ name: 'Pea Shoot' }, { name: 'Bitter Melon' }])
-          .expect(422, { message: 'The request body contained more than one update document', name: 'RestError' });
+          .expect(422)
+          .then(({ body }) =>
+            expect(body).toHaveProperty('message', 'The request body contained more than one update document'))
       });
   });
 
@@ -62,7 +66,7 @@ describe('PUT singular', () => {
           .send({ name: 'Cucumber' })
           .expect(404)
           .then(({ body }) => {
-            expect(body).toHaveProperty('message', 'Nothing matched the requested query (404).');
+            expect(body).toHaveProperty('message', 'Nothing matched the requested query');
             // Make sure it wasn't created
             return request().get('/api/vegetables/' + id)
               .expect(204)

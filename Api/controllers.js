@@ -25,10 +25,10 @@ module.exports = function (options, protect) {
   // Find the correct controller to handle the request.
   this.use('/:path', (request, response, next) => {
     let fragment = '/' + request.params.path;
-    let controllers = protect.controllers(request.baucis.release, fragment);
+    let controllers = protect.controllers(request.rested.release, fragment);
     // If not found, bail.
     if (controllers.length === 0) return next();
-    request.baucis.controller = controllers[0];
-    request.baucis.controller(request, response, next);
+    request.rested.controller = controllers[0];
+    request.rested.controller(request, response, next);
   });
 };

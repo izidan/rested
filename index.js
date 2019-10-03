@@ -4,56 +4,46 @@ const Api = require('./Api');
 const Controller = require('./Controller');
 const Model = require('./Model');
 const Query = require('./Query');
-const RestError = require('rest-error');
-const plugins = {
-  json: require('baucis-json'),
-  links: require('baucis-links'),
-  json2: require('./Accept/json'),
-  jsonp: require('./Accept/jsonp'),
-  xml: require('./Accept/xml'),
-  csv: require('./Accept/csv'),
-  tsv: require('./Accept/tsv'),
-  yaml: require('./Accept/yaml'),
-  msgpack: require('./Accept/msgpack'),
-};
+const HttpError = require('http-errors');
+const Accept = require('./Accept');
 
 let instance;
 const parsers = {};
 const formatters = {};
 
 // __Module Definition__
-const baucis = module.exports = () => baucis.empty();
+const rested = module.exports = () => rested.empty();
 
 // __Public Members__
-baucis.rest = model => {
+rested.rest = model => {
   if (!instance) instance = Api();
   return instance.rest(model);
 };
 
-baucis.empty = () => {
+rested.empty = () => {
   let previous = instance;
   instance = Api();
   return previous;
 };
 
-baucis.formatters = (response, callback) => {
+rested.formatters = (response, callback) => {
   if (response._headerSent)
     return callback(null, () => through.obj(
       function (ctx, enc, cb) { console.trace(ctx); this.emit('data', ctx); cb() },
       function () { this.emit('end') }
     ));
-  let handlers = { default: () => callback(RestError.NotAcceptable()) };
+  let handlers = { default: () => callback(HttpError.NotAcceptable()) };
   Object.keys(formatters).map(mime => handlers[mime] = formatters[mime](callback));
   response.format(handlers);
 };
 
 // Adds a formatter for the given mime type. Needs a function that returns a stream.
-baucis.setFormatter = (mime, f) => {
+rested.setFormatter = (mime, f) => {
   formatters[mime] = callback => () => callback(null, f);
-  return baucis;
+  return rested;
 };
 
-baucis.parser = mime => {
+rested.parser = mime => {
   // Default to JSON when no MIME type is provided.
   mime = mime || 'application/json';
   // Not interested in any additional parameters at this point.
@@ -63,21 +53,21 @@ baucis.parser = mime => {
 };
 
 // Adds a parser for the given mime type. Needs a function that returns a stream.
-baucis.setParser = (mime, f) => {
+rested.setParser = (mime, f) => {
   parsers[mime] = f;
-  return baucis;
+  return rested;
 };
 
 // __Expose Modules__
-baucis.Api = Api;
-baucis.Controller = Controller;
-baucis.Error = RestError;
-baucis.Model = Model;
+rested.Api = Api;
+rested.Model = Model;
+rested.Error = HttpError;
+rested.Controller = Controller;
 
-Api.container(baucis);
-Controller.container(baucis);
-RestError.container(baucis);
-Model.container(baucis);
+Api.container(rested);
+Controller.container(rested);
+Model.container(rested);
+Accept.apply(rested);
 
 // __Plugins__
-Object.values(plugins).forEach(plugin => plugin.apply(baucis));
+require('baucis-links').apply(rested);

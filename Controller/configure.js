@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const semver = require('semver');
 const Model = require('../Model');
-const RestError = require('rest-error');
+const errors = require('http-errors');
 
 
 module.exports = function (model, protect) {
   if (typeof model !== 'string' && (!model || !model.schema))
-    throw RestError.Misconfigured('You must pass in a model or model name');
+    throw errors.InternalServerError('You must pass in a model or model name');
 
   protect.property('comments', false);
   protect.property('explain', false);
@@ -14,7 +14,7 @@ module.exports = function (model, protect) {
   protect.property('sort', '');
 
   protect.property('versions', '*', range => {
-    if (!semver.validRange(range)) throw RestError.Misconfigured('Controller version range "%s" was not a valid semver range', range);
+    if (!semver.validRange(range)) throw errors.InternalServerError(`Controller version range "${range}" was not a valid semver range`);
     return range;
   });
 

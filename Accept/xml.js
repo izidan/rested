@@ -16,7 +16,7 @@ const singleOrArray = function (alwaysArray) {
         alwaysArray = alwaysArray || (doc instanceof Array);
         if (last === undefined) {
             this.emit('data', '<?xml version="1.0" encoding="utf-8"?>');
-            singular = doc && doc['@xsi:type'] !== null && doc['@xsi:type'].split(':').pop().match(/^[a-z]/) ? doc['@xsi:type'] : singular;
+            singular = doc && doc['@xsi:type'] && doc['@xsi:type'].split(':').pop().match(/^[a-z]/) ? doc['@xsi:type'] : singular;
             if (alwaysArray) {
                 arrayOf = singular.replace(/\w+:(\w)/, '$1');
                 arrayOf = arrayOf[0].toUpperCase() + arrayOf.substr(1);
