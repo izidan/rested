@@ -103,6 +103,8 @@ const Countries = new Schema({
 
 const Country = mongoose.model('country', Countries);
 
+Country.findBy('isO31661Alpha3');
+
 module.exports = {
     app: () => app,
     server: () => server,

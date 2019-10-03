@@ -6,9 +6,11 @@ const Model = module.exports = deco(function (options, protect) {
   protect.property('plural');
   protect.property('singular');
   protect.property('select', '');
-  protect.property('lastModified');
-  protect.property('findBy', '_id');
   protect.property('locking', false);
+  protect.property('lastModified', null, key =>
+    key ? Object.keys(this.translateAliases({ [key]: key })).pop() : key);
+  protect.property('findBy', '_id', key =>
+    key ? Object.keys(this.translateAliases({ [key]: key })).pop() : key);
 
   this.deselected = path => {
     let deselected = [];
