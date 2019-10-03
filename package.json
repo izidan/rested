@@ -7,7 +7,7 @@
     "url": "https://github.com/izidan"
   },
   "homepage": "https://github.com/izidan/rested",
-  "version": "2.1.5",
+  "version": "2.1.7",
   "scripts": {
     "test": "./node_modules/.bin/jest --runInBand",
     "coverage": "./node_modules/.bin/jest --runInBand --coverage"

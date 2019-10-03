@@ -13,8 +13,10 @@ module.exports = function (options, protect) {
   // Validate URL's ID parameter, if any.
   this.request((request, response, next) => {
     let id = request.params.id;
-    let instance = (this.model().schema.path(this.findBy()) || {}).instance || 'String';
+    let findBy = Object.keys(this.model().translateAliases({ [this.findBy()]: id })).pop();
+    let instance = (this.model().schema.path(findBy) || {}).instance || 'String';
     let invalid = protect.isInvalid(request.params.id, instance, 'url.id');
+    if (invalid) console.trace(findBy, request.params.id, instance);
     next(invalid ? errors.BadRequest(`The requested document ID "${id}" is not a valid document ID`) : undefined);
   });
   // Check that the HTTP method has not been disabled for this controller.

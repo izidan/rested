@@ -15,7 +15,7 @@ module.exports = function () {
     if (request.params.id !== undefined)
       conditions[this.findBy()] = request.params.id;
 
-    request.rested.conditions = conditions;
+    request.rested.conditions = this.model().translateAliases(conditions);
     next();
   });
 };
