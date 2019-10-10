@@ -158,4 +158,15 @@ module.exports = function () {
     request.rested.query.hint(hint);
     next();
   });
+  // Check for query lean and explain.
+  this.query((request, response, next) => {
+    let options = Object.assign({},
+      this.model().schema.options.toJSON,
+      this.model().schema.options.toObject);
+    let lean = request.query.lean || request.query.explain;
+    lean = lean || !(options.virtuals || options.getters || options.transform);
+    if (lean === 'true' || lean === true)
+      request.rested.query.lean();
+    next();
+  });
 };
