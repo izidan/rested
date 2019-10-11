@@ -25,6 +25,15 @@ const isNonNegativeInteger = n => {
 module.exports = function () {
   // Check for bad selection
   const checkBadSelection = select => this.deselected().some(path => new RegExp('[+]?' + path + '\\b', 'i').exec(select))
+  // ignore skip, limit and select on distinct or count
+  this.query((request, response, next) => {
+    if (!!(request.query.distinct || request.query.count)) {
+      delete request.query.skip;
+      delete request.query.limit;
+      delete request.query.select;
+    }
+    next();
+  });
   // Perform distinct query.
   this.query((request, response, next) => {
     let distinct = request.query.distinct;
