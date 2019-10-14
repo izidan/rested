@@ -169,6 +169,7 @@ module.exports = function () {
   });
   // Check for query lean and explain.
   this.query((request, response, next) => {
+    if (request.method !== 'GET') return next();
     let options = Object.assign({},
       this.model().schema.options.toJSON,
       this.model().schema.options.toObject);

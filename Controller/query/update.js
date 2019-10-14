@@ -44,7 +44,7 @@ module.exports = function (options, protect) {
     pipeline(request.rested.incoming());
     // If the document ID is present, ensure it matches the ID in the URL.
     pipeline((context, callback) => {
-      let findBy = Object.keys(this.model().translateAliases({ [this.findBy()]: id })).pop();
+      let findBy = Object.keys(this.model().translateAliases({ [this.findBy()]: '' })).pop();
       let bodyId = context.incoming[findBy];
       if (bodyId === undefined) return callback(null, context);
       if (bodyId === request.params.id) return callback(null, context);

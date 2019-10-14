@@ -9,7 +9,7 @@ module.exports = function (options, protect) {
     let pipeline = protect.pipeline(next);
     let url = request.originalUrl || request.url;
     let select = this.select().split(' ').filter(s => s && s[0] !== '-');
-    let findBy = Object.keys(this.model().translateAliases({ [this.findBy()]: id })).pop();
+    let findBy = Object.keys(this.model().translateAliases({ [this.findBy()]: '' })).pop();
     let deselect = this.select().split(' ').filter(s => s && s[0] === '-').map(f => f.substr(1));
     // Add trailing slash to URL if needed.
     if (url.lastIndexOf('/') === (url.length - 1)) url = url.slice(0, url.length - 1);
