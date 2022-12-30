@@ -47,7 +47,7 @@
     "csv-stringify": "^5.3.3",
     "deco": "0.12.3",
     "event-stream": "^4.0.1",
-    "flat": "^4.1.0",
+    "flat": "^5.0.1",
     "from2": "^2.3.0",
     "http-errors": "^1.7.3",
     "js-yaml": "^3.13.1",
