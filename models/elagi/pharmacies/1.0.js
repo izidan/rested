@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-//const mongoosastic = require('../../../elastic')
 
 const schema = new mongoose.Schema({
   _id: String,
@@ -14,9 +13,9 @@ const schema = new mongoose.Schema({
   location: [Number],
   maps: String
 }, {
-    id: false,
-    versionKey: false
-  });
+  id: false,
+  versionKey: false
+});
 
 //schema.plugin mongoosastic, { type: 'pharmacy', index: 'elagi_pharma', lean: true }
 module.exports = mongoose.attach(process.env.ELAGIDB, 'elagi_pharmacy_1.0.0', schema, 'pharmacies');
