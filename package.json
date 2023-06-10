@@ -37,12 +37,11 @@
     "elasticsearch": "^16.3.0",
     "mongoosastic": "^5.0.0",
     "morgan": "^1.9.1",
-    "winston": "^3.2.1",
-    "winston-mongodb": "^5.0.0"
+    "winston": "^3.2.1"
   },
   "main": "server.js",
   "engines": {
-    "node": "~16.x"
+    "node": ">=16.0"
   },
   "_moduleAliases": {
     "mongoose-aliasfield": "nody_modules/mongoose-aliasfield",

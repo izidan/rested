@@ -25,7 +25,6 @@ module.exports = app => {
   String.prototype.verbose = function () { console.log(colors.yellow('VRB', moment().format('DD/MM HH:mm:ss'), (this || '').toString())) };
   if (process.env.LOG === 'true' || process.env.LOG === true || config.logging === null) return;
   // optional logging dependencies
-  require('winston-mongodb').MongoDB;
   const winston = require('winston');
   const morgan = require('morgan');
 
@@ -40,31 +39,32 @@ module.exports = app => {
   winston.handleExceptions(new winston.transports.Console({ colorize: false, handleExceptions: true, prettyPrint: true }));
   winston.exitOnError = false;
 
-  for (var transportName in config.logging.sharedTransports) {
-    var transport = config.logging.sharedTransports[transportName];
-    transport.type = winston.transports[transport.type];
-    sharedTransports[transportName] = new transport.type(Object.assign({ name: transportName }, transport.options));
-  }
-
-  for (var loggerName in config.logging.loggers) {
-    var logger = config.logging.loggers[loggerName];
-    if (logger.transports.shared != null)
-      for (var sharedName in logger.transports.shared)
-        loggerTransports.push(sharedTransports[sharedName]);
-
-    for (var transportName in logger.transports.private) {
-      var transport = logger.transports.private[transportName];
-      transport.type = winston.transports[transport.type];
-      var options = Object.assign({ name: transportName }, transport.options);
-      if (transport.autoLabel)
-        options = Object.assign({ label: { category: loggerName, server: serverLabel } }, options);
-      transport = new transport.type(options);
-      loggerTransports.push(transport);
-    }
-    container.add(loggerName, { transports: loggerTransports });
-    container.get(loggerName).on('error', err => winston.error('Logger %s encountered an error', loggerName, err));
-  }
-
+  /* 
+   for (var transportName in config.logging.sharedTransports) {
+     var transport = config.logging.sharedTransports[transportName];
+     transport.type = winston.transports[transport.type];
+     sharedTransports[transportName] = new transport.type(Object.assign({ name: transportName }, transport.options));
+   }
+ 
+   for (var loggerName in config.logging.loggers) {
+     var logger = config.logging.loggers[loggerName];
+     if (logger.transports.shared != null)
+       for (var sharedName in logger.transports.shared)
+         loggerTransports.push(sharedTransports[sharedName]);
+ 
+     for (var transportName in logger.transports.private) {
+       var transport = logger.transports.private[transportName];
+       transport.type = winston.transports[transport.type];
+       var options = Object.assign({ name: transportName }, transport.options);
+       if (transport.autoLabel)
+         options = Object.assign({ label: { category: loggerName, server: serverLabel } }, options);
+       transport = new transport.type(options);
+       loggerTransports.push(transport);
+     }
+     container.add(loggerName, { transports: loggerTransports });
+     container.get(loggerName).on('error', err => winston.error('Logger %s encountered an error', loggerName, err));
+   }
+ */
   String.prototype.log = (category, data) => container.get(category).log(moment().format('DD/MM HH:mm:ss'), this.toString(), data);
   String.prototype.info = (category, data) => container.get(category).info(moment().format('DD/MM HH:mm:ss'), this.toString(), data);
   String.prototype.warn = (category, data) => container.get(category).warn(moment().format('DD/MM HH:mm:ss'), this.toString(), data);
