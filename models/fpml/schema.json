@@ -1,0 +1,1935 @@
+{
+  "definitions": {
+    "Allocations": {
+      "required": [
+	"allocation"
+      ],
+      "type":"object",
+      "properties": {
+	"allocation": {
+	  "type":"array",
+	  "items": {
+	    "$ref":"#/definitions/Allocation"
+	  },
+	  "minItems":1
+	}
+      }
+    },
+    "Approvals": {
+      "required": [
+	"approval"
+      ],
+      "type":"object",
+      "properties": {
+	"approval": {
+	  "type":"array",
+	  "items": {
+	    "$ref":"#/definitions/Approval"
+	  },
+	  "minItems":1
+	}
+      }
+    },
+    "Validation.model": {
+      "type":"object",
+      "properties": {
+	"validation": {
+	  "type":"array",
+	  "items": {
+	    "$ref":"#/definitions/Validation"
+	  },
+	  "minItems":0
+	}
+      }
+    },
+    "CreditDerivativesNotices": {
+      "required": [
+	"creditEvent",
+	"publiclyAvailableInformation",
+	"physicalSettlement"
+      ],
+      "type":"object",
+      "properties": {
+	"creditEvent": {
+	  "description":"This element corresponds to the Credit Event Notice Delivered Under Old Transaction and Deemed Delivered Under New Transaction under the EXHIBIT C to 2004 ISDA Novation Definitions.",
+	  "type":"boolean"
+	},
+	"publiclyAvailableInformation": {
+	  "description":"This element corresponds to the Notice of Publicly Available Information Delivered Under Old Transaction and Deemed Delivered Under New Transaction under the EXHIBIT C to 2004 ISDA Novation Definitions.",
+	  "type":"boolean"
+	},
+	"physicalSettlement": {
+	  "description":"This element corresponds to the Notice of Intended Physical Settlement Delivered Under Old Transaction under the EXHIBIT C to 2004 ISDA Novation Definitions.",
+	  "type":"boolean"
+	}
+      }
+    },
+    "PaymentDetail": {
+      "type":"object",
+      "required": [
+	"paymentAmount",
+	"paymentRule",
+	"adjustablePaymentDate",
+	"paymentDate",
+	"adjustedPaymentDate"
+      ],
+      "allOf": [
+	{
+	  "$ref":"#/definitions/PaymentBase"
+	}
+      ],
+      "properties": {
+	"paymentAmount": {
+	  "description":"A fixed payment amount.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Money"
+	    }
+	  ]
+	},
+	"paymentRule": {
+	  "description":"A type defining the calculation rule.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PaymentRule"
+	    }
+	  ]
+	},
+	"adjustablePaymentDate": {
+	  "description":"A fixed amount payment date that shall be subject to adjustment in accordance with the applicable business day convention if it would otherwise fall on a day that is not a business day. The applicable business day convention and business day are those specified in the dateAdjustments element within the generalTerms component. ISDA 2003 Term: Fixed Rate Payer Payment Date.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/AdjustableDate2"
+	    }
+	  ]
+	},
+	"adjustedPaymentDate": {
+	  "description":"The adjusted payment date. This date should already be adjusted for any applicable business day convention. This component is not intended for use in trade confirmation but may be specified to allow the fee structure to also serve as a cashflow type component.",
+	  "type":"string",
+	  "format":"date-time"
+	},
+	"paymentDate": {
+	  "description":"Payment date.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/AdjustableOrRelativeDate"
+	    }
+	  ]
+	}
+      }
+    },
+    "AllocationContent.model": {
+      "type":"object",
+      "properties": {
+	"collateral": {
+	  "description":"The sum that must be posted upfront to collateralize against counterparty credit risk.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Collateral"
+	    }
+	  ]
+	},
+	"creditChargeAmount": {
+	  "description":"Special credit fee assessed to certain institutions.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Money"
+	    }
+	  ]
+	},
+	"approvals": {
+	  "description":"A container for approval states in the workflow.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Approvals"
+	    }
+	  ]
+	},
+	"masterConfirmationDate": {
+	  "description":"The date of the confirmation executed between the parties and intended to govern the allocated trade between those parties.",
+	  "type":"string",
+	  "format":"date-time"
+	}
+      }
+    },
+    "AmendmentDetails.model": {
+      "required": [
+	"amendmentTradeDate",
+	"amendmentEffectiveDate"
+      ],
+      "type":"object",
+      "properties": {
+	"amendmentTradeDate": {
+	  "description":"The date on which the the parties enter into the Amendment transaction",
+	  "type":"string",
+	  "format":"date-time"
+	},
+	"amendmentEffectiveDate": {
+	  "description":"The date on which the Amendment becomes effective",
+	  "type":"string",
+	  "format":"date-time"
+	}
+      }
+    },
+    "CalculationAgent.model": {
+      "type":"object",
+      "properties": {
+	"calculationAgent": {
+	  "description":"The ISDA calculation agent responsible for performing duties as defined in the applicable product definitions.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/CalculationAgent"
+	    }
+	  ]
+	},
+	"calculationAgentBusinessCenter": {
+	  "description":"The city in which the office through which ISDA Calculation Agent is acting for purposes of the transaction is located The short-form confirm for a trade that is executed under a Sovereign or Asia Pacific Master Confirmation Agreement ( MCA ), does not need to specify the Calculation Agent. However, the confirm does need to specify the Calculation Agent City. This is due to the fact that the MCA sets the value for Calculation Agent but does not set the value for Calculation Agent City.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/BusinessCenter"
+	    }
+	  ]
+	}
+      }
+    },
+    "IncreaseDetails.model": {
+      "required": [
+	"increaseInNotionalAmount",
+	"outstandingNotionalAmount",
+	"increaseTradeDate",
+	"increaseEffectiveDate",
+	"increaseInNumberOfOptions",
+	"outstandingNumberOfOptions"
+      ],
+      "type":"object",
+      "properties": {
+	"increaseTradeDate": {
+	  "description":"The date on which the the parties enter into the Increase transaction",
+	  "type":"string",
+	  "format":"date-time"
+	},
+	"increaseEffectiveDate": {
+	  "description":"The date on which the Increase becomes effective",
+	  "type":"string",
+	  "format":"date-time"
+	},
+	"increaseInNumberOfOptions": {
+	  "description":"Specifies the fixed amount by which the Number of Options increases due to the Increase transaction.",
+	  "type":"number"
+	},
+	"outstandingNumberOfOptions": {
+	  "description":"Specifies the Number of Options after the Increase.",
+	  "type":"number"
+	},
+	"increaseInNotionalAmount": {
+	  "description":"Specifies the fixed amount by which the Notional increases due to the Increase transaction.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Money"
+	    }
+	  ]
+	},
+	"outstandingNotionalAmount": {
+	  "description":"Specifies the Notional amount after the Increase.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Money"
+	    }
+	  ]
+	}
+      }
+    },
+    "TradeOrTradeReference.model": {
+      "description":"Choice between identification and representation of trade execution."
+    },
+    "ContractOrContractReference.model": {
+      "description":"Choice between identification and representation of the contract."
+    },
+    "ContractNovationDetails.model": {
+      "description":"Model group with Contract Novation element content.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice for expressing the novated amount as either a money amount, number of options, or number of units, according the the financial product which is being novated.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the old contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.\nChoice between identification and representation of the new contract.",
+      "required": [
+	"transferor",
+	"transferee",
+	"remainingParty",
+	"novatedAmount",
+	"newContractReference",
+	"newContract",
+	"oldContractReference",
+	"oldContract",
+	"novationDate",
+	"novatedNumberOfOptions",
+	"novatedNumberOfUnits"
+      ],
+      "type":"object",
+      "properties": {
+	"transferor": {
+	  "description":"A pointer style reference to a party identifier defined elsewhere in the document. In a three-way novation the party referenced is the Transferor (outgoing party) in the novation. The Transferor means a party which transfers by novation to a Transferee all of its rights, liabilities, duties and obligations with respect to a Remaining Party. In a four-way novation the party referenced is Transferor 1 which transfers by novation to Transferee 1 all of its rights, liabilities, duties and obligations with respect to Transferor 2. ISDA 2004 Novation Term: Transferor (three-way novation) or Transferor 1 (four-way novation).",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyReference"
+	    }
+	  ]
+	},
+	"transferee": {
+	  "description":"A pointer style reference to a party identifier defined elsewhere in the document. In a three-way novation the party referenced is the Transferee (incoming party) in the novation. Transferee means a party which accepts by way of novation all rights, liabilities, duties and obligations of a Transferor with respect to a Remaining Party. In a four-way novation the party referenced is Transferee 1 which accepts by way of novation the rights, liabilities, duties and obligations of Transferor 1. ISDA 2004 Novation Term: Transferee (three-way novation) or Transferee 1 (four-way novation).",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyReference"
+	    }
+	  ]
+	},
+	"remainingParty": {
+	  "description":"A pointer style reference to a party identifier defined elsewhere in the document. In a three-way novation the party referenced is the Remaining Party in the novation. Remaining Party means a party which consents to a Transferor's transfer by novation and the acceptance thereof by the Transferee of all of the Transferor's rights, liabilities, duties and obligations with respect to such Remaining Party under and with respect of the Novated Amount of a transaction. In a four-way novation the party referenced is Transferor 2 per the ISDA definition and acts in the role of a Transferor. Transferor 2 transfers by novation to Transferee 2 all of its rights, liabilities, duties and obligations with respect to Transferor 1. ISDA 2004 Novation Term: Remaining Party (three-way novation) or Transferor 2 (four-way novation).",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyReference"
+	    }
+	  ]
+	},
+	"otherRemainingParty": {
+	  "description":"A pointer style reference to a party identifier defined elsewhere in the document. This element is not applicable in a three-way novation and should be omitted. In a four-way novation the party referenced is Transferee 2. Transferee 2 means a party which accepts by way of novation the rights, liabilities, duties and obligations of Transferor 2. ISDA 2004 Novation Term: Transferee 2 (four-way novation).",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyReference"
+	    }
+	  ]
+	},
+	"novationDate": {
+	  "description":"Specifies the date that one party's legal obligations with regard to a trade are transferred to another party. It corresponds to the Novation Date section of the 2004 ISDA Novation Definitions, section 1.16.",
+	  "type":"string",
+	  "format":"date-time"
+	},
+	"novationContractDate": {
+	  "description":"Specifies the date the parties agree to assign or novate a Contract. If this element is not specified, the novationContractDate will be deemed to be the novationDate. It corresponds to the Novation Trade Date section of the 2004 ISDA Novation Definitions, section 1.17.",
+	  "type":"string",
+	  "format":"date-time"
+	},
+	"novatedAmount": {
+	  "description":"The amount which represents the portion of the Old Contract being novated.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Money"
+	    }
+	  ]
+	},
+	"novatedNumberOfOptions": {
+	  "description":"The number of options which represent the portion of the Old Contract being novated.",
+	  "type":"number"
+	},
+	"novatedNumberOfUnits": {
+	  "description":"The number of options which represent the portion of the Old Contract being novated.",
+	  "type":"number"
+	},
+	"fullFirstCalculationPeriod": {
+	  "description":"This element corresponds to the applicability of the Full First Calculation Period as defined in the 2004 ISDA Novation Definitions, section 1.20.",
+	  "type":"boolean"
+	},
+	"firstPeriodStartDate": {
+	  "maxItems":2,
+	  "type":"array",
+	  "items": {
+	    "description":"Element that is used to be able to make sense of the “new transaction” without requiring reference back to the “old transaction”. In the case of interest rate products there are potentially 2 “first period start dates” to reference – one with respect to each party to the new transaction. For Credit Default Swaps there is just the one with respect to the party that is the fixed rate payer.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/FirstPeriodStartDate"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"nonReliance": {
+	  "description":"This element corresponds to the non-Reliance section in the 2004 ISDA Novation Definitions, section 2.1 (c) (i). The element appears in the instance document when non-Reliance is applicable.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Empty"
+	    }
+	  ]
+	},
+	"creditDerivativesNotices": {
+	  "description":"This element should be specified if one or more of either a Credit Event Notice, Notice of Publicly Available Information, Notice of Physical Settlement or Notice of Intended Physical Settlement, as applicable, has been delivered by or to the Transferor or the Remaining Party. The type of notice or notices that have been delivered should be indicated by setting the relevant boolean element value(s) to true. The absence of the element means that no Credit Event Notice, Notice of Publicly Available Information, Notice of Physical Settlement or Notice of Intended Physical Settlement, as applicable, has been delivered by or to the Transferor or the Remaining Party.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/CreditDerivativesNotices"
+	    }
+	  ]
+	},
+	"contractualDefinitions": {
+	  "type":"array",
+	  "items": {
+	    "description":"The definitions (such as those published by ISDA) that will define the terms of the novation transaction.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/ContractualDefinitions"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"contractualTermsSupplement": {
+	  "type":"array",
+	  "items": {
+	    "description":"A contractual supplement (such as those published by ISDA) that will apply to the trade.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/ContractualTermsSupplement"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"newContractReference": {
+	  "$ref":"#/definitions/ContractReference"
+	},
+	"newContract": {
+	  "$ref":"#/definitions/Contract"
+	},
+	"oldContractReference": {
+	  "description":"Indicates a reference to the original contract between the transferor and the remaining party.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/ContractReference"
+	    }
+	  ]
+	},
+	"oldContract": {
+	  "description":"Indicates the original Contract between the transferor and the remaining party.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Contract"
+	    }
+	  ]
+	}
+      }
+    },
+    "TradeHeader": {
+      "description":"A type defining trade related information which is not product specific.",
+      "required": [
+	"partyTradeIdentifier",
+	"tradeDate"
+      ],
+      "type":"object",
+      "properties": {
+	"partyTradeIdentifier": {
+	  "type":"array",
+	  "items": {
+	    "description":"The trade reference identifier(s) allocated to the trade by the parties involved.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/PartyTradeIdentifier"
+	      }
+	    ]
+	  },
+	  "minItems":1
+	},
+	"partyTradeInformation": {
+	  "type":"array",
+	  "items": {
+	    "description":"Additional trade information that may be provided by each involved party.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/PartyTradeInformation"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"tradeDate": {
+	  "description":"The trade date.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/IdentifiedDate"
+	    }
+	  ]
+	}
+      }
+    },
+    "TradeDifference": {
+      "description":"A type used to record the details of a difference between two business objects/",
+      "required": [
+	"differenceType",
+	"differenceSeverity",
+	"element",
+	"message"
+      ],
+      "type":"object",
+      "properties": {
+	"differenceType": {
+	  "description":"The type of difference that exists.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/DifferenceTypeEnum"
+	    }
+	  ]
+	},
+	"differenceSeverity": {
+	  "description":"An indication of the severity of the difference.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/DifferenceSeverityEnum"
+	    }
+	  ]
+	},
+	"element": {
+	  "description":"The name of the element affected.",
+	  "type":"string"
+	},
+	"basePath": {
+	  "description":"XPath to the element in the base object.",
+	  "type":"string"
+	},
+	"baseValue": {
+	  "description":"The value of the element in the base object.",
+	  "type":"string"
+	},
+	"otherPath": {
+	  "description":"XPath to the element in the other object.",
+	  "type":"string"
+	},
+	"otherValue": {
+	  "description":"Value of the element in the other trade.",
+	  "type":"string"
+	},
+	"missingElement": {
+	  "type":"array",
+	  "items": {
+	    "description":"Element(s) that are missing in the other trade.",
+	    "type":"string"
+	  },
+	  "minItems":0
+	},
+	"extraElement": {
+	  "type":"array",
+	  "items": {
+	    "description":"Element(s) that are extraneous in the other object.",
+	    "type":"string"
+	  },
+	  "minItems":0
+	},
+	"message": {
+	  "description":"A human readable description of the problem.",
+	  "type":"string"
+	}
+      }
+    },
+    "Strategy": {
+      "type":"object",
+      "description":"A type defining a group of products making up a single trade.",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/Product"
+	}
+      ],
+      "properties": {
+	"premiumProductReference": {
+	  "description":"Indicates which product within a strategy represents the premium payment.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/ProductReference"
+	    }
+	  ]
+	}
+      }
+    },
+    "QueryPortfolio": {
+      "type":"object",
+      "description":"A type representing a portfolio obtained by querying the set of trades held in a repository. It contains trades matching the intersection of all criteria specified using one or more queryParameters or trades matching the union of two or more child queryPortfolios.",
+      "required": [
+	"queryParameter"
+      ],
+      "allOf": [
+	{
+	  "$ref":"#/definitions/Portfolio"
+	}
+      ],
+      "properties": {
+	"queryParameter": {
+	  "type":"array",
+	  "items": {
+	    "$ref":"#/definitions/QueryParameter"
+	  },
+	  "minItems":1
+	}
+      }
+    },
+    "QueryParameter": {
+      "description":"A type representing criteria for defining a query portfolio. The criteria are made up of a QueryParameterId, QueryParameterValue and QueryParameterOperator.",
+      "required": [
+	"queryParameterId"
+      ],
+      "type":"object",
+      "properties": {
+	"queryParameterId": {
+	  "$ref":"#/definitions/QueryParameterId"
+	},
+	"queryParameterOperator": {
+	  "$ref":"#/definitions/QueryParameterOperator"
+	},
+	"queryParameterValue": {
+	  "type":"string"
+	}
+      }
+    },
+    "PercentageRule": {
+      "type":"object",
+      "description":"A type defining a content model for a calculation rule defined as percentage of the notional amount.",
+      "required": [
+	"notionalAmountReference",
+	"paymentPercent"
+      ],
+      "allOf": [
+	{
+	  "$ref":"#/definitions/PaymentRule"
+	}
+      ],
+      "properties": {
+	"paymentPercent": {
+	  "description":"A percentage of the notional amount.",
+	  "type":"number"
+	},
+	"notionalAmountReference": {
+	  "description":"A reference to the notional amount.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/NotionalAmountReference"
+	    }
+	  ]
+	}
+      }
+    },
+    "PaymentRule": {
+      "description":"The abstract base type from which all calculation rules of the independent amount must be derived."
+    },
+    "PartyTradeInformation": {
+      "description":"A type defining additional information that may be recorded against a trade.",
+      "required": [
+	"partyReference"
+      ],
+      "type":"object",
+      "properties": {
+	"partyReference": {
+	  "description":"Identifies that party that has ownership of this information.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyReference"
+	    }
+	  ]
+	},
+	"trader": {
+	  "type":"array",
+	  "items": {
+	    "description":"Identifies the person or persons who assumed the role of trader for this trade.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/Trader"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"executionDateTime": {
+	  "description":"Trade execution date time provided by the owner of the party trade information.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/ExecutionDateTime"
+	    }
+	  ]
+	}
+      }
+    },
+    "PartyTradeIdentifiers": {
+      "description":"A type containing multiple partyTradeIdentifier.",
+      "required": [
+	"partyTradeIdentifier"
+      ],
+      "type":"object",
+      "properties": {
+	"partyTradeIdentifier": {
+	  "type":"array",
+	  "items": {
+	    "$ref":"#/definitions/PartyTradeIdentifier"
+	  },
+	  "minItems":1
+	}
+      }
+    },
+    "PartyTradeIdentifier": {
+      "type":"object",
+      "description":"A type defining one or more trade identifiers allocated to the trade by a party. A link identifier allows the trade to be associated with other related trades, e.g. trades forming part of a larger structured transaction. It is expected that for external communication of trade there will be only one tradeId sent in the document per party.",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/TradeIdentifier"
+	}
+      ],
+      "properties": {
+	"linkId": {
+	  "type":"array",
+	  "items": {
+	    "description":"A link identifier allowing the trade to be associated with other related trades, e.g. the linkId may contain a tradeId for an associated trade or several related trades may be given the same linkId. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/LinkId"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	}
+      }
+    },
+    "PartyRole": {
+      "description":"A generic party role type. This can be extended to provide specialization of roles.\nThe party fulfilling this role can be identified either directly, or indirectly via the account used to fulfil this role.\nThe party fulfilling this role can be identified either directly, or indirectly via the account used to fulfil this role.",
+      "required": [
+	"party",
+	"account"
+      ],
+      "type":"object",
+      "properties": {
+	"party": {
+	  "description":"A reference to the party fulfilling this role.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyReference"
+	    }
+	  ]
+	},
+	"account": {
+	  "description":"A reference to the account fulfilling this role.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/AccountReference"
+	    }
+	  ]
+	}
+      }
+    },
+    "Event": {
+      "description":"A type defining the basic structure of FpML business events; it is refined by its derived types.",
+      "type":"object",
+      "properties": {
+	"eventId": {
+	  "type":"array",
+	  "items": {
+	    "description":"",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/EventId"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	}
+      }
+    },
+    "Document": {
+      "description":"The abstract base type from which all FpML compliant messages and documents must be derived."
+    },
+    "ContractTermination": {
+      "description":"Contract Termination Details."
+    },
+    "ContractReference": {
+      "description":"A type which contains identifiers to a single contract, which are assigned by parties to the contract.",
+      "required": [
+	"identifier"
+      ],
+      "type":"object",
+      "properties": {
+	"identifier": {
+	  "type":"array",
+	  "items": {
+	    "description":"A contract identifier which is assigned by a party to the contract.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/ContractIdentifier"
+	      }
+	    ]
+	  },
+	  "minItems":1
+	}
+      }
+    },
+    "ContractInformation": {
+      "description":"A type defining additional contract information issued by the indicated party. This type will typically be used as an extension point for contract processing information, in the same way that an extension point is provided for trade processing information.",
+      "required": [
+	"partyReference"
+      ],
+      "type":"object",
+      "properties": {
+	"partyReference": {
+	  "description":"Identifies that party that has ownership of this information.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyReference"
+	    }
+	  ]
+	}
+      }
+    },
+    "ContractHeader": {
+      "description":"Contract header containing identification and other information which is independent of the type of financial product.",
+      "required": [
+	"identifier",
+	"contractDate"
+      ],
+      "type":"object",
+      "properties": {
+	"identifier": {
+	  "type":"array",
+	  "items": {
+	    "description":"Identification of the Contract. Each party to the contract may assign multiple identifiers.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/ContractIdentifier"
+	      }
+	    ]
+	  },
+	  "minItems":1
+	},
+	"information": {
+	  "type":"array",
+	  "items": {
+	    "description":"Information regarding the Contract from the perspective of the party referenced.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/ContractInformation"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"contractDate": {
+	  "description":"Corresponds to the trade date. This element will be renamed tradeDate in the next major version (5.0) of FpML.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/IdentifiedDate"
+	    }
+	  ]
+	}
+      }
+    },
+    "Collateral": {
+      "description":"A type for defining the obligations of the counterparty subject to credit support requirements.",
+      "required": [
+	"independentAmount"
+      ],
+      "type":"object",
+      "properties": {
+	"independentAmount": {
+	  "description":"Independent Amount is an amount that usually less creditworthy counterparties are asked to provide. It can either be a fixed amount or a percentage of the Transaction's value. The Independent Amount can be: (i) transferred before any trading between the parties occurs (as a deposit at a third party's account or with the counterparty) or (ii) callable after trading has occurred (typically because a downgrade has occurred). In situation (i), the Independent Amount is not included in the calculation of Exposure, but in situation (ii), it is included in the calculation of Exposure. Thus, for situation (ii), the Independent Amount may be transferred along with any collateral call. Independent Amount is a defined term in the ISDA Credit Support Annex. (\"with respect to a party, the amount specified as such for that party in Paragraph 13; if no amount is specified, zero\").",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/IndependentAmount"
+	    }
+	  ]
+	}
+      }
+    },
+    "ChangeContractSize": {
+      "description":"Represent a change in Contract Size."
+    },
+    "ChangeContract": {
+      "description":"Abstract base class for changes to a Contract.",
+      "required": [
+	"contractReference",
+	"date",
+	"effectiveDate"
+      ],
+      "type":"object",
+      "properties": {
+	"contractReference": {
+	  "description":"Identification of the Contract which is subject to change.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/ContractReference"
+	    }
+	  ]
+	},
+	"date": {
+	  "description":"The date on which the the parties enter into the change.",
+	  "type":"string",
+	  "format":"date-time"
+	},
+	"effectiveDate": {
+	  "description":"The date on which the change becomes effective.",
+	  "type":"string",
+	  "format":"date-time"
+	},
+	"payment": {
+	  "description":"Payment for the right to change the Contract.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Payment"
+	    }
+	  ]
+	}
+      }
+    },
+    "BlockTradeIdentifier": {
+      "type":"object",
+      "description":"This type is used to identify that a trade id is referring to a bock trade.",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/PartyTradeIdentifier"
+	}
+      ],
+      "properties": {
+	"allocationTradeId": {
+	  "type":"array",
+	  "items": {
+	    "description":"The trade id of the allocated trade. This is used by the block trade to reference the allocated trade.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/PartyTradeIdentifier"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"blockTradeId": {
+	  "description":"The trade id of the parent trade for N-level allocations. This element is only used to model N-level allocations in which the trade acts as block and allocated trade at the same time.This basically means the ability to allocate a block trade to multiple allocation trades, and then allocate these in turn to other allocation trades (and so on if desired).",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyTradeIdentifier"
+	    }
+	  ]
+	}
+      }
+    },
+    "BestFitTrade": {
+      "description":"A type used to record the differences between the current trade and another indicated trade.",
+      "required": [
+	"tradeIdentifier"
+      ],
+      "type":"object",
+      "properties": {
+	"tradeIdentifier": {
+	  "description":"The identifier for the trade compared against.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/TradeIdentifier"
+	    }
+	  ]
+	},
+	"differences": {
+	  "type":"array",
+	  "items": {
+	    "description":"An optional set of detailed difference records.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/TradeDifference"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	}
+      }
+    },
+    "Approval": {
+      "description":"A specific approval state in the workflow.",
+      "required": [
+	"type",
+	"status"
+      ],
+      "type":"object",
+      "properties": {
+	"type": {
+	  "description":"The type of approval (e.g. \"Credit\").",
+	  "type":"string"
+	},
+	"status": {
+	  "description":"The current state of approval (.e.g preapproved, pending approval, etc.)",
+	  "type":"string"
+	},
+	"approver": {
+	  "description":"The full name or identifiying ID of the relevant approver.",
+	  "type":"string"
+	}
+      }
+    },
+    "AllocationTradeIdentifier": {
+      "type":"object",
+      "description":"This type is used to identify that a trade id is referring to a bock trade.",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/PartyTradeIdentifier"
+	}
+      ],
+      "properties": {
+	"blockTradeId": {
+	  "description":"The trade id of the block trade. This is used by each one of the allocated trades to reference the block trade.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyTradeIdentifier"
+	    }
+	  ]
+	}
+      }
+    },
+    "QueryParameterValue": {
+      "description":"A type representing a value corresponding to an identifier for a parameter describing a query portfolio.",
+      "type":"string"
+    },
+    "Allocation": {
+      "type":"object",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/AccountReferenceOrPartyReference.model"
+	},
+	{
+	  "$ref":"#/definitions/AllocationContent.model"
+	},
+	{
+	  "$ref":"#/definitions/AllocationContent.model"
+	}
+      ],
+      "required": [
+	"allocationTradeId",
+	"allocatedNotional",
+	"allocatedFraction"
+      ],
+      "properties": {
+	"allocationTradeId": {
+	  "description":"Unique ID for the allocation.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyTradeIdentifier"
+	    }
+	  ]
+	},
+	"allocatedFraction": {
+	  "description":"The fractional allocation (0.45 = 45%) of the notional and \"block\" fees to this particular client subaccount.",
+	  "type":"number"
+	},
+	"allocatedNotional": {
+	  "description":"The notional allocation (amount and currency) to this particular client account.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Money"
+	    }
+	  ]
+	}
+      }
+    },
+    "Amendment": {
+      "type":"object",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/AmendmentDetails.model"
+	},
+	{
+	  "$ref":"#/definitions/Event"
+	},
+	{
+	  "$ref":"#/definitions/Event"
+	}
+      ],
+      "required": [
+	"trade"
+      ],
+      "properties": {
+	"payment": {
+	  "description":"A payment for the right to amend the trade.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Payment"
+	    }
+	  ]
+	},
+	"trade": {
+	  "$ref":"#/definitions/Trade"
+	}
+      },
+      "description":"An event type that defines the content of an Amendment transaction."
+    },
+    "Contract": {
+      "type":"object",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/CalculationAgent.model"
+	}
+      ],
+      "description":"Definition of a Financial Contract.",
+      "required": [
+	"header"
+      ],
+      "properties": {
+	"header": {
+	  "description":"Contract header containing identification and other information which is independent of the type of financial product which is the subject of this contract.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/ContractHeader"
+	    }
+	  ]
+	},
+	"otherPartyPayment": {
+	  "type":"array",
+	  "items": {
+	    "description":"Other fees or additional payments associated with the contract, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the contract.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/Payment"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"collateral": {
+	  "description":"Defines collateral obiligations of a Party.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Collateral"
+	    }
+	  ]
+	},
+	"documentation": {
+	  "description":"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Documentation"
+	    }
+	  ]
+	},
+	"governingLaw": {
+	  "description":"Governing Law applicable to this Contract.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/GoverningLaw"
+	    }
+	  ]
+	}
+      }
+    },
+    "ContractNovation": {
+      "type":"object",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/ContractNovationDetails.model"
+	}
+      ],
+      "description":"Details of the Contract Novation.",
+      "properties": {
+	"payment": {
+	  "description":"Payment for the Novation.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Payment"
+	    }
+	  ]
+	}
+      }
+    },
+    "DataDocument": {
+      "type":"object",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/Validation.model"
+	},
+	{
+	  "$ref":"#/definitions/Document"
+	},
+	{
+	  "$ref":"#/definitions/Document"
+	}
+      ],
+      "properties": {
+	"party": {
+	  "type":"array",
+	  "items": {
+	    "description":"A legal entity or a subdivision of a legal entity.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nA legal entity or a subdivision of a legal entity.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nA legal entity or a subdivision of a legal entity.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nA legal entity or a subdivision of a legal entity.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nA legal entity or a subdivision of a legal entity.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nA legal entity or a subdivision of a legal entity.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nA legal entity or a subdivision of a legal entity.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.\nParties can perform multiple roles in a trade lifecycle. For example, the principal parties obligated to make payments from time to time during the term of the trade, but may include other parties involved in, or incidental to, the trade, such as parties acting in the role of novation transferor/transferee, broker, calculation agent, etc. In FpML roles are defined in multiple places within a document.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/Party"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"trade": {
+	  "type":"array",
+	  "items": {
+	    "description":"The root element in an FpML trade document.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/Trade"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"portfolio": {
+	  "type":"array",
+	  "items": {
+	    "description":"An arbitary grouping of trade references (and possibly other portfolios).",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/Portfolio"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	}
+      },
+      "description":"A type defining a content model that is backwards compatible with older FpML releases and which can be used to contain sets of data without expressing any processing intention."
+    },
+    "Increase": {
+      "type":"object",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/TradeOrTradeReference.model"
+	},
+	{
+	  "$ref":"#/definitions/IncreaseDetails.model"
+	},
+	{
+	  "$ref":"#/definitions/Event"
+	},
+	{
+	  "$ref":"#/definitions/IncreaseDetails.model"
+	},
+	{
+	  "$ref":"#/definitions/Event"
+	},
+	{
+	  "$ref":"#/definitions/Event"
+	},
+	{
+	  "$ref":"#/definitions/IncreaseDetails.model"
+	},
+	{
+	  "$ref":"#/definitions/Event"
+	},
+	{
+	  "$ref":"#/definitions/IncreaseDetails.model"
+	},
+	{
+	  "$ref":"#/definitions/Event"
+	},
+	{
+	  "$ref":"#/definitions/Event"
+	}
+      ],
+      "properties": {
+	"payment": {
+	  "description":"A payment for the right to increase the trade.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Payment"
+	    }
+	  ]
+	}
+      },
+      "description":"An event type that defines the content of an Increase transaction."
+    },
+    "IndependentAmount": {
+      "type":"object",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/PayerReceiver.model"
+	}
+      ],
+      "required": [
+	"paymentDetail"
+      ],
+      "properties": {
+	"paymentDetail": {
+	  "type":"array",
+	  "items": {
+	    "description":"A container element allowing a schedule of payments associated with the Independent Amount.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/PaymentDetail"
+	      }
+	    ]
+	  },
+	  "minItems":1
+	}
+      }
+    },
+    "VersionedContractId": {
+      "type":"object",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/VersionHistory.model"
+	}
+      ],
+      "description":"Contract Id with Version Support",
+      "required": [
+	"contractId"
+      ],
+      "properties": {
+	"contractId": {
+	  "$ref":"#/definitions/ContractId"
+	}
+      }
+    },
+    "VersionedTradeId": {
+      "type":"object",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/VersionHistory.model"
+	}
+      ],
+      "description":"Trade Id with Version Support",
+      "required": [
+	"tradeId"
+      ],
+      "properties": {
+	"tradeId": {
+	  "$ref":"#/definitions/TradeId"
+	}
+      }
+    },
+    "ExecutionDateTime": {
+      "type":"object",
+      "properties": {
+	"@executionDateTimeScheme": {
+	  "type":"string",
+	  "format":"uri"
+	},
+	"@": {
+	  "type":"string",
+	  "format":"date-time"
+	}
+      },
+      "required": [
+	"@"
+      ],
+      "description":"A type defining the trade execution date time and the source of it. For use inside containing types which already have a Reference to a Party that has assigned this trade execution date time."
+    },
+    "PortfolioName": {
+      "type":"object",
+      "properties": {
+	"@id": {
+	  "type":"string"
+	},
+	"@portfolioNameScheme": {
+	  "type":"string",
+	  "format":"uri"
+	},
+	"@": {
+	  "$ref":"#/definitions/Scheme"
+	}
+      },
+      "required": [
+	"@"
+      ],
+      "description":"The data type used for portfolio names."
+    },
+    "Trader": {
+      "type":"object",
+      "properties": {
+	"@traderScheme": {
+	  "type":"string",
+	  "format":"uri"
+	},
+	"@": {
+	  "$ref":"#/definitions/Scheme"
+	}
+      },
+      "required": [
+	"@"
+      ]
+    },
+    "Validation": {
+      "type":"object",
+      "properties": {
+	"@validationScheme": {
+	  "type":"string",
+	  "format":"uri"
+	},
+	"@": {
+	  "$ref":"#/definitions/Scheme"
+	}
+      },
+      "required": [
+	"@"
+      ],
+      "description":"A reference identifying a rule within a validation scheme."
+    },
+    "TradeIdentifier": {
+      "type":"object",
+      "properties": {
+	"@id": {
+	  "type":"string"
+	},
+	"partyReference": {
+	  "description":"A pointer style reference to a party identifier defined elsewhere in the document. The party referenced has allocated the trade identifier.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyReference"
+	    }
+	  ]
+	},
+	"tradeId": {
+	  "$ref":"#/definitions/TradeId"
+	},
+	"versionedTradeId": {
+	  "$ref":"#/definitions/VersionedTradeId"
+	}
+      },
+      "description":"A type defining a trade identifier issued by the indicated party.",
+      "required": [
+	"partyReference",
+	"tradeId",
+	"versionedTradeId"
+      ]
+    },
+    "Trade": {
+      "type":"object",
+      "properties": {
+	"@id": {
+	  "type":"string"
+	},
+	"tradeHeader": {
+	  "description":"The information on the trade which is not product specific, e.g. trade date.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/TradeHeader"
+	    }
+	  ]
+	},
+	"otherPartyPayment": {
+	  "type":"array",
+	  "items": {
+	    "description":"Other fees or additional payments associated with the trade, e.g. broker commissions, where one or more of the parties involved are not principal parties involved in the trade.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/Payment"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"brokerPartyReference": {
+	  "type":"array",
+	  "items": {
+	    "description":"Identifies that party (or parties) that brokered this trade.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/PartyReference"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"determiningParty": {
+	  "maxItems":2,
+	  "type":"array",
+	  "items": {
+	    "description":"The party referenced is the ISDA Determination Party that specified in the related Confirmation as Determination Party.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/PartyReference"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"hedgingParty": {
+	  "maxItems":2,
+	  "type":"array",
+	  "items": {
+	    "description":"The party referenced is the ISDA Hedging Party that specified in the related Confirmation as Hedging, or if no Hedging Party is specified, either party to the Transaction.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/PartyReference"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"collateral": {
+	  "description":"Defines collateral obiligations of a Party",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Collateral"
+	    }
+	  ]
+	},
+	"documentation": {
+	  "description":"Defines the definitions that govern the document and should include the year and type of definitions referenced, along with any relevant documentation (such as master agreement) and the date it was signed.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Documentation"
+	    }
+	  ]
+	},
+	"governingLaw": {
+	  "description":"Identification of the law governing the transaction.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/GoverningLaw"
+	    }
+	  ]
+	},
+	"allocations": {
+	  "description":"\"Short-form\" representation of allocations in which the key block economics are stated once within the trade structure, and the allocation data is contained in this allocations structure.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/Allocations"
+	    }
+	  ]
+	},
+	"tradeSide": {
+	  "maxItems":2,
+	  "type":"array",
+	  "items": {
+	    "description":"The parties to the Trade are grouped into Trade Sides. Each Trade has as many as two sides. Each side is a buyer or receiver of each leg or stream.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/TradeSide"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	}
+      },
+      "allOf": [
+	{
+	  "$ref":"#/definitions/CalculationAgent.model"
+	}
+      ],
+      "description":"A type defining an FpML trade.",
+      "required": [
+	"tradeHeader"
+      ]
+    },
+    "Portfolio": {
+      "type":"object",
+      "properties": {
+	"@id": {
+	  "type":"string"
+	},
+	"partyPortfolioName": {
+	  "description":"The name of the portfolio together with the party that gave the name.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyPortfolioName"
+	    }
+	  ]
+	},
+	"portfolio": {
+	  "type":"array",
+	  "items": {
+	    "description":"An arbitary grouping of trade references (and possibly other portfolios).",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/Portfolio"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	},
+	"tradeId": {
+	  "type":"array",
+	  "items": {
+	    "$ref":"#/definitions/TradeId"
+	  },
+	  "minItems":0
+	}
+      },
+      "description":"A type representing an arbitary grouping of trade references."
+    },
+    "PartyPortfolioName": {
+      "type":"object",
+      "properties": {
+	"@id": {
+	  "type":"string"
+	},
+	"partyReference": {
+	  "description":"A pointer style reference to a party identifier defined elsewhere in the document. The party referenced has allocated the trade identifier.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyReference"
+	    }
+	  ]
+	},
+	"portfolioName": {
+	  "type":"array",
+	  "items": {
+	    "$ref":"#/definitions/PortfolioName"
+	  },
+	  "minItems":1
+	}
+      },
+      "description":"A type to represent a portfolio name for a particular party.",
+      "required": [
+	"partyReference",
+	"portfolioName"
+      ]
+    },
+    "ContractIdentifier": {
+      "type":"object",
+      "properties": {
+	"@id": {
+	  "type":"string"
+	},
+	"partyReference": {
+	  "description":"A pointer style reference to a party identifier defined elsewhere in the document. The party referenced has allocated the contract identifier.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyReference"
+	    }
+	  ]
+	},
+	"contractId": {
+	  "type":"array",
+	  "items": {
+	    "description":"A contract id which is not version aware.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/ContractId"
+	      }
+	    ]
+	  },
+	  "minItems":1
+	},
+	"versionedContractId": {
+	  "type":"array",
+	  "items": {
+	    "description":"A contract id which is version aware.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/VersionedContractId"
+	      }
+	    ]
+	  },
+	  "minItems":1
+	}
+      },
+      "description":"A type defining a contract identifier issued by the indicated party.\nWhere the legal activity is to agree a contract of variation then the business process should be to modify a contract. This is a contract in its own right and not a version of a previous contract. Where the business process is to replace and supersede a contract then you have a new contract and a contract version should not be used.\nA type defining a contract identifier issued by the indicated party.\nWhere the legal activity is to agree a contract of variation then the business process should be to modify a contract. This is a contract in its own right and not a version of a previous contract. Where the business process is to replace and supersede a contract then you have a new contract and a contract version should not be used.\nWhere the legal activity is to agree a contract of variation then the business process should be to modify a contract. This is a contract in its own right and not a version of a previous contract. Where the business process is to replace and supersede a contract then you have a new contract and a contract version should not be used.",
+      "required": [
+	"partyReference",
+	"contractId",
+	"versionedContractId"
+      ]
+    },
+    "ContractId": {
+      "type":"object",
+      "required": [
+	"@contractIdScheme",
+	"@"
+      ],
+      "properties": {
+	"@contractIdScheme": {
+	  "type":"string",
+	  "format":"uri"
+	},
+	"@id": {
+	  "type":"string"
+	},
+	"@": {
+	  "$ref":"#/definitions/Scheme"
+	}
+      },
+      "description":"A contact id identifier allocated by a party. FpML does not define the domain values associated with this element."
+    },
+    "EventId": {
+      "type":"object",
+      "required": [
+	"@eventIdScheme",
+	"@"
+      ],
+      "properties": {
+	"@eventIdScheme": {
+	  "type":"string",
+	  "format":"uri"
+	},
+	"@id": {
+	  "type":"string"
+	},
+	"@": {
+	  "$ref":"#/definitions/Scheme"
+	}
+      },
+      "description":"An event reference identifier allocated by a party. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list."
+    },
+    "FirstPeriodStartDate": {
+      "type":"object",
+      "required": [
+	"@href",
+	"@"
+      ],
+      "properties": {
+	"@href": {
+	  "type":"string"
+	},
+	"@": {
+	  "type":"string",
+	  "format":"date-time"
+	}
+      }
+    },
+    "LinkId": {
+      "type":"object",
+      "required": [
+	"@linkIdScheme",
+	"@"
+      ],
+      "properties": {
+	"@id": {
+	  "type":"string"
+	},
+	"@linkIdScheme": {
+	  "type":"string",
+	  "format":"uri"
+	},
+	"@": {
+	  "$ref":"#/definitions/Scheme"
+	}
+      },
+      "description":"The data type used for link identifiers."
+    },
+    "QueryParameterId": {
+      "type":"object",
+      "required": [
+	"@queryParameterIdScheme",
+	"@"
+      ],
+      "properties": {
+	"@queryParameterIdScheme": {
+	  "type":"string",
+	  "format":"uri"
+	},
+	"@id": {
+	  "type":"string"
+	},
+	"@": {
+	  "$ref":"#/definitions/Scheme"
+	}
+      },
+      "description":"A type representing an identifier for a parameter describing a query portfolio. An identifier can be anything from a product name like swap to a termination date."
+    },
+    "TradeId": {
+      "type":"object",
+      "required": [
+	"@tradeIdScheme",
+	"@"
+      ],
+      "properties": {
+	"@tradeIdScheme": {
+	  "type":"string",
+	  "format":"uri"
+	},
+	"@id": {
+	  "type":"string"
+	},
+	"@": {
+	  "$ref":"#/definitions/Scheme"
+	}
+      },
+      "description":"A trade reference identifier allocated by a party. FpML does not define the domain values associated with this element. Note that the domain values for this element are not strictly an enumerated list."
+    },
+    "TradeSide": {
+      "required": [
+	"@id",
+	"creditor"
+      ],
+      "type":"object",
+      "properties": {
+	"@id": {
+	  "type":"string"
+	},
+	"orderer": {
+	  "description":"The Party placing the order. This could be a fund manager acting on behalf of a client, or a hedge fund acting on it's own behalf. This is the role with the investment discretion.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyRole"
+	    }
+	  ]
+	},
+	"introducer": {
+	  "description":"Party that can relay an order directly to the trading floor at a firm. This is potentially a different firm, but may be the same as that taking the order. In effect the introducer is the first dealer to take the order. The reason an introducing dealer may forward a trade is sometime because it doesn't have the capacity to execute effectively but does have the relationship with the Orderer. Introducing Party is an industry standard term. This is semantically equivalent to the FIX and ISO20022 Introducing Firm.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyRole"
+	    }
+	  ]
+	},
+	"executor": {
+	  "description":"The Party executing or striking the trade. Executing Party is an industry standard term. This is semantically equivalent to the FIX and ISO20022 Executing Firm or Trader.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyRole"
+	    }
+	  ]
+	},
+	"confirmer": {
+	  "description":"The party that undertakes the confirmation process for this Trade Side. The confirmer essentially manages the matching and affirmation of trades. This is often the creditor or is increasingly outsourced to service providers such as Swapswire.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyRole"
+	    }
+	  ]
+	},
+	"creditor": {
+	  "description":"The party whose name appears on the contract as being responsible for credit of the trade. This is the party in the Trade Side the credit risk is against. For example if a hedge fund was to trade in the name of it's prime broker, then the prime broker would be the creditor.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyRole"
+	    }
+	  ]
+	},
+	"calculater": {
+	  "description":"The calculater is the Party that calculates, negotiates, and agrees the values to be paid at each payment date.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyRole"
+	    }
+	  ]
+	},
+	"settler": {
+	  "description":"The Settler is the party that makes the payments. Increasingly this is a service that can be externalized from the other roles. An example of a settlement service provide is SwapClear.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyRole"
+	    }
+	  ]
+	},
+	"beneficiary": {
+	  "description":"The party that suffers the economic effect of the trade. This is usually referred to as the primary Principal in FIX and ISO20022 - which is slightly confusing in that there are potentially many Princiapal/Agency relationships. The beneficiary may be distinct from the creditor - an example is a Hedge Fund trading in the name of it's Prime Broker.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/PartyRole"
+	    }
+	  ]
+	},
+	"accountant": {
+	  "type":"array",
+	  "items": {
+	    "description":"The Accountants for the trade. There are potentially many accountants. This is known in FIX and ISO20022 for Collective Investment Vehicles as the Third Party Administrator (TPA), however all trades for all parties have at least one party accounting for the trade.",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/PartyRole"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	}
+      },
+      "description":"The parties to the trade form into sides. Each side has defined roles in the lifecyle of the trade fulfilled by parties. Each party role is given in the likely order they would be filled during the lifecycle of a trade.\nAgency relations occur when one Party undertakes one role and another undertakes a different role. For example a Fund would be Beneficiary, use a Fund Manager as Orderer, use a trading firm as Introducer, and a broker as Executor, but give up Clearing to their prime broker. All roles always exist. An absent element means the role isn't stated.\nThe parties to the trade form into sides. Each side has defined roles in the lifecyle of the trade fulfilled by parties. Each party role is given in the likely order they would be filled during the lifecycle of a trade.\nAgency relations occur when one Party undertakes one role and another undertakes a different role. For example a Fund would be Beneficiary, use a Fund Manager as Orderer, use a trading firm as Introducer, and a broker as Executor, but give up Clearing to their prime broker. All roles always exist. An absent element means the role isn't stated.\nThe parties to the trade form into sides. Each side has defined roles in the lifecyle of the trade fulfilled by parties. Each party role is given in the likely order they would be filled during the lifecycle of a trade.\nAgency relations occur when one Party undertakes one role and another undertakes a different role. For example a Fund would be Beneficiary, use a Fund Manager as Orderer, use a trading firm as Introducer, and a broker as Executor, but give up Clearing to their prime broker. All roles always exist. An absent element means the role isn't stated.\nAgency relations occur when one Party undertakes one role and another undertakes a different role. For example a Fund would be Beneficiary, use a Fund Manager as Orderer, use a trading firm as Introducer, and a broker as Executor, but give up Clearing to their prime broker. All roles always exist. An absent element means the role isn't stated."
+    },
+    "VersionAttributes.atts": {
+      "properties": {
+	"@actualBuild": {
+	  "enum": [
+	    2
+	  ],
+	  "type":"integer",
+	  "minimum":0,
+	  "exclusiveMinimum":true
+	},
+	"@version": {
+	  "$ref":"#/definitions/string"
+	},
+	"@expectedBuild": {
+	  "type":"integer",
+	  "minimum":0,
+	  "exclusiveMinimum":true
+	}
+      },
+      "required": [
+	"@version"
+      ],
+      "type":"object",
+      "description":"Set of attributes that define versioning information."
+    },
+    "QueryParameterOperator": {
+      "type":"object",
+      "properties": {
+	"@queryParameterOperatorScheme": {
+	  "default":"http://www.fpml.org/coding-scheme/query-parameter-operator",
+	  "type":"string",
+	  "format":"uri"
+	},
+	"@id": {
+	  "type":"string"
+	},
+	"@": {
+	  "$ref":"#/definitions/Scheme"
+	}
+      },
+      "required": [
+	"@"
+      ],
+      "description":"A type representing an operator describing the relationship of a value to its corresponding identifier for a parameter describing a query portfolio. Possible relationships include equals, not equals, less than, greater than. Possible operators are listed in the queryParameterOperatorScheme."
+    },
+    "xs:time": {
+      "type":"string",
+      "format":"date-time"
+    },
+    "ContractualMatrix": {
+      "required": [
+	"matrixType"
+      ],
+      "type":"object",
+      "properties": {
+	"matrixType": {
+	  "description":"Identifies the form of applicable matrix.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/MatrixType"
+	    }
+	  ]
+	},
+	"publicationDate": {
+	  "description":"Specifies the publication date of the applicable version of the matrix. When this element is omitted, the ISDA supplemental language for incorporation of the relevant matrix will generally define rules for which version of the matrix is applicable.",
+	  "type":"string",
+	  "format":"date-time"
+	},
+	"matrixTerm": {
+	  "description":"Defines any applicable key into the relevant matrix. For example, the Transaction Type would be the single term required for the Credit Derivatives Physical Settlement Matrix. This element should be omitted in the case of the 2000 ISDA Definitions Settlement Matrix for Early Termination and Swaptions.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/MatrixTerm"
+	    }
+	  ]
+	}
+      }
+    },
+    "LegalEntity": {
+      "required": [
+	"entityName"
+      ],
+      "type":"object",
+      "properties": {
+	"entityName": {
+	  "description":"The name of the reference entity. A free format string. FpML does not define usage rules for this element.",
+	  "allOf": [
+	    {
+	      "$ref":"#/definitions/EntityName"
+	    }
+	  ]
+	},
+	"entityId": {
+	  "type":"array",
+	  "items": {
+	    "description":"A legal entity identifier (e.g. RED entity code).",
+	    "allOf": [
+	      {
+		"$ref":"#/definitions/EntityId"
+	      }
+	    ]
+	  },
+	  "minItems":0
+	}
+      }
+    }
+  },
+  "oneOf": {
+    "event": {
+      "description":"An abstract global element used as a basis for substition of event types",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/Event"
+	}
+      ]
+    },
+    "strategy": {
+      "description":"A strategy product.",
+      "allOf": [
+	{
+	  "$ref":"#/definitions/Strategy"
+	}
+      ]
+    }
+  }
+}

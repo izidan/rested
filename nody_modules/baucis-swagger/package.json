@@ -1,0 +1,22 @@
+{
+  "description": "Generate customizable swagger definitions for your Baucis REST API.",
+  "keywords": [
+    "baucis",
+    "REST",
+    "RESTful",
+    "API",
+    "plugin",
+    "swagger",
+    "documentation"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "baucis-swagger",
+  "peerDependencies": {
+    "rested": "^2.0.1"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "version": "1.1.2"
+}

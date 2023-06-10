@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{REST}ed Swagger</title>
+  <link rel='stylesheet' type='text/css' href='https://fonts.googleapis.com/css?family=Droid+Sans:400,700' />
+  <link rel='stylesheet' type='text/css' href='css/reset.css' media='screen' />
+  <link rel='stylesheet' type='text/css' href='css/screen.css' media='screen' />
+  <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js'></script>
+  <script type='text/javascript' src='https://cdn.rawgit.com/sleavely/jquery-slideto/master/jquery.slideto.js'></script>
+  <script type='text/javascript' src='https://cdn.rawgit.com/jordanthomas/jquery-wiggle/master/src/jquery.wiggle.min.js'></script>
+  <script type='text/javascript' src="/js/shred.bundle.min.js"></script>
+  <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/jquery.ba-bbq/1.2.1/jquery.ba-bbq.min.js'></script>
+  <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.min.js'></script>
+  <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js'></script>
+  <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js'></script>
+  <script type='text/javascript' src='/js/swagger.min.js'></script>
+  <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/2.0.24/swagger-ui.min.js'></script>
+  <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js'></script>
+  <script type="text/javascript">
+  $(function() {
+    $(window).on('hashchange', function() {
+      if (window.location.hash.match(/^#?\d+\.\d+$/g)) {
+        window.location.reload();
+      }
+    });
+    window.apiVersion = "";
+    if (window.location.hash.match(/^#?\d+\.\d+$/g)) {
+      window.apiVersion = "." + window.location.hash.split('#')[1];
+      window.location.hash = "";
+      console.log(window.apiVersion);
+    }
+    console.log(window.location.hash.split('#'));
+    window.swaggerUi = new SwaggerUi({
+      url: window.location.pathname + "/documentation" + window.apiVersion,
+      dom_id: "swagger-ui-container",
+      supportedSubmitMethods: ['get', 'post', 'put', 'delete'],
+      onComplete: function(swaggerApi, swaggerUi) {
+        log("Loaded SwaggerUI");
+        $('pre code').each(function(i, e) {
+          hljs.highlightBlock(e)
+        });
+      },
+      onFailure: function(data) {
+        log("Unable to Load SwaggerUI");
+      },
+      docExpansion: "none"
+    });
+
+    $('#input_apiKey').change(function() {
+      var key = $('#input_apiKey')[0].value;
+      log("key: " + key);
+      if (key && key.trim() != "") {
+        log("added key " + key);
+        window.authorizations.add("key", new ApiKeyAuthorization("api_key", key, "query"));
+      }
+    })
+    window.swaggerUi.load();
+  });
+  </script>
+</head>
+
+<body class="swagger-section">
+  <div id="message-bar" class="swagger-ui-wrap"></div>
+  <div id="swagger-ui-container" class="swagger-ui-wrap" style="max-width:90%"></div>
+</body>
+
+</html>

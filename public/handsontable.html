@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>{REST}ed Grid</title>
+  <!-- Required dependencies (as external scripts) -->
+  <!--link href="https://cdn.jsdelivr.net/npm/pikaday@1.5.1/css/pikaday.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.20.1/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pikaday@1.5.1/pikaday.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/numbro@2/dist/numbro.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hot-formula-parser@3.0.0/dist/formula-parser.min.js"></script-->
+  <!-- Handsontable bare files -->
+  <script src="/js/handsontable.full.min.js"></script>
+  <link href="/css/handsontable.full.min.css" rel="stylesheet">
+  <link href="/css/handsontable.main.css" rel="stylesheet">
+</head>
+
+<body>
+  <div id="hot"></div>
+</body>
+<script>
+  var images = /\.(jpg|gif|png|ico|bmp|svg|jpeg)/i;
+  var hotElement = document.querySelector('#hot');
+  var hotElementContainer = hotElement.parentNode;
+
+  function flatten(arr) {
+    for (var i = 0; i < arr.length; i++)
+      if (Array.isArray(arr[i])) {
+        var vals = arr[i];
+        arr.splice(i, 1);
+        vals.reverse().forEach(function (itm) { arr.splice(i, 0, itm) });
+        i--;
+      }
+    return arr;
+  };
+
+  function column(key, val, base) {
+    var col = { data: base + key, readOnly: true, editor: false, allowEmpty: true, type: 'text' };
+    if (val === null || val === undefined)
+      return col;
+    else if (val instanceof Number)
+      col.type = 'numeric';
+    else if (val instanceof Date)
+      col.type = 'date';
+    else if (typeof (val) === 'object')
+      delete col.type;
+    else if (val.match && val.match(/^\s*<.+>\s*$/g))
+      col.renderer = renderHtml;
+    else if (col.data.match(/image|photo/i) || (val.match && val.match(images)))
+      col.renderer = renderImage;
+    else if (val.match && val.match(/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/))
+      col.renderer = renderEmail;
+    else if (col.data.match(/uri|url/i) || (val.indexOf && val.indexOf('http') === 0))
+      col.renderer = renderHyperlink;
+    else if (col.data === '_id' || col.data === 'id')
+      col.renderer = renderId;
+    else if (col.data.match(/country|alpha2|alpha3/i))
+      col.renderer = renderFlag;
+    else if (val && (typeof (val) === 'string' || Array.isArray(val)))
+      col.renderer = renderText;
+    return col;
+  };
+
+  function columns(obj, base) {
+    return Object.keys(obj).map(function (key) {
+      var val = obj[key];
+      if (Array.isArray(val))
+        val = val[0];
+      if (typeof (val) === 'object' && !Array.isArray(val) && Object.keys(val || {}).length > 0)
+        return columns(val, base + key + '.');
+      return column(key, val, base);
+    });
+  };
+
+  function headers(obj) {
+    return Object.keys(obj).map(function (key) {
+      var val = obj[key];
+      if (Array.isArray(val))
+        val = val[0];
+      if (typeof (val) === 'object' && !Array.isArray(val) && Object.keys(val || {}).length > 0)
+        return { label: key, headers: headers(val) };
+      return key;
+    }).sort(function (a, b) { return (Boolean((a.headers || []).length) + (a.label || a)).localeCompare(Boolean((b.headers || []).length) + (b.label || b)) });
+  };
+
+  function renderId(instance, td, row, col, prop, value, cellProperties) {
+    td.innerHTML = '<a target="_blank" href="' + location.pathname.split('.')[0] + '/' + value + '"><strong>' + value + '<strong></a>';
+    return td;
+  }
+
+  function renderText(instance, td, row, col, prop, value, cellProperties) {
+    value = Handsontable.helper.stringify(value).replace(/[\r|\n]+/g, ' ');
+    if (value.length > 55) {
+      let parts = value.trim().split(/\r*\n|\r\n*|<br\s*\/?>/g).filter(p => p.length > 1);
+      let shortComment = parts[0].substr(0, 55).trim() + "...";
+      td.innerHTML = '<div title="' + parts.join('\n').replace(/"/g, "'") + '">' + shortComment + '</div>';
+      cellProperties.comment = { value: value };
+    } else td.innerText = value;
+    return td;
+  }
+
+  function renderHtml(instance, td, row, col, prop, value, cellProperties) {
+    td.innerHTML = value;
+    return td;
+  }
+
+  function renderEmail(instance, td, row, col, prop, value, cellProperties) {
+    value = Handsontable.helper.stringify(value);
+    td.innerHTML = '<a target="_blank" href="mailto:' + value.trim() + '">' + decodeURIComponent(value.trim()) + '</a>';
+    return td;
+  }
+
+  function renderHyperlink(instance, td, row, col, prop, value, cellProperties) {
+    value = Handsontable.helper.stringify(value);
+    if (value.match(images))
+      return renderImage(instance, td, row, col, prop, value, cellProperties, value);
+    td.innerHTML = '<a target="_blank" href="' + value + '">' + decodeURIComponent(value.replace(/https?:\/\/(www\.)?/i, '')) + '</a>';
+    return td;
+  }
+
+  function renderFlag(instance, td, row, col, prop, value, cellProperties) {
+    return !(value && value.match && value.match(/^[a-zA-Z]{2,3}$/)) ? td : renderImage(instance, td, row, col,
+      prop, 'https://cdn.rawgit.com/hjnilsson/country-flags/master/svg/' + value.substr(0, 2).toLowerCase() + '.svg', cellProperties, value);
+    //prop, 'https://raw.githubusercontent.com/hjnilsson/country-flags/master/png100px/' + value.substr(0, 2).toLowerCase() + '.png', cellProperties, value);
+  };
+
+  function renderImage(instance, td, row, col, prop, value, cellProperties, alt) {
+    value = Handsontable.helper.stringify(value);
+    if (!value || value.trim() === '') return td;
+    var position = value.match(/\.svg/) ? 'fixed' : 'absolute';
+    var img = document.createElement('IMG');
+    img.style = 'max-height: 16px; max-width: 32px';
+    img.alt = alt || value || '';
+    img.src = value;
+    img.onerror = function (event) {
+      delete this.src;
+      delete this.onerror;
+      event.preventDefault();
+      if (parent = this.parentElement) {
+        this.parentElement.removeChild(this);
+        parent.innerText = this.alt;
+      }
+      return true;
+    };
+    Handsontable.dom.addEvent(img, 'mousedown', function (e) { e.preventDefault(); window.open(img.src); }); // prevent selection quirk
+    img.onmouseover = function (e) { img.style = `z-idex: 99; position: ${position}; max-width: 500px;` };
+    img.onmouseout = function (e) { img.style = 'max-height: 16px; max-width: 32px' };
+    Handsontable.dom.empty(td);
+    td.appendChild(img);
+    return td;
+  }
+
+  function render(json, schema) {
+    schema = schema || json[Math.ceil(json.length / 2 - 1)];
+    var cols = flatten(columns(schema, ''));
+    cols = cols.sort(function (a, b) { return (a.data.split('.').length + a.data).localeCompare(b.data.split('.').length + b.data) });
+    var nested = [headers(schema)];
+    for (var i = 0; i < nested.length; i++) {
+      var last = [];
+      var push = false;
+      var heads = nested[i];
+      heads.forEach(function (head) {
+        if (!head.headers)
+          last.push(head);
+        else {
+          head.headers.forEach(function (h) {
+            h.parent = head;
+            last.push(h);
+          });
+          head.colspan = head.headers.length;
+          delete head.headers;
+          push = true;
+        }
+      });
+      if (push)
+        nested.push(last);
+    }
+    for (var i = nested.length - 2; i > -1; i--)
+      for (var x = 0; x < nested[i].length; x++)
+        if (typeof (nested[i][x]) === 'string')
+          nested[i][x] = ''
+        else if (nested[i][x].parent)
+          nested[i][x].parent.colspan += nested[i][x].colspan - 1;
+
+    if (hotData.length === 0) {
+      hotSettings.columns = cols;
+      hotSettings.nestedHeaders = nested;
+      hotSettings.nestedRows = true;
+      hotSettings.collapsibleColumns = true;
+      hot.updateSettings(hotSettings);
+    }
+    Array.prototype.push.apply(hotData, json);
+    hot.render(true);
+  };
+
+  var hotData = []
+  var hotSettings = {
+    data: hotData,
+    //width: 806,
+    //height: 487,
+    //maxRows: 22,
+    //columns: false,
+    //observeChanges: true,
+    stretchH: 'all',
+    stretchW: 'all',
+    autoWrapRow: false,
+    autoWrapColumn: false,
+    manualRowResize: false,
+    manualColumnResize: true,
+    rowHeaders: true,
+    colHeaders: true,
+    //nestedHeaders: false,
+    //nestedRows: true,
+    //collapsibleColumns: true,
+    allowInsertRow: false,
+    allowInsertColumn: false,
+    allowRemoveRow: false,
+    allowRemoveColumn: false,
+    manualRowMove: false,
+    manualColumnMove: false,
+    hiddenColumns: true,
+    contextMenu: true,
+    filters: true,
+    copyPaste: true,
+    dropdownMenu: true,
+    //columnSorting: true,
+    multiColumnSorting: { indicator: true },
+    autoColumnSize: { useHeaders: true, samplingRatio: 1 },
+    licenseKey: 'non-commercial-and-evaluation',
+  };
+
+  var hot = new Handsontable(hotElement, hotSettings);
+
+  hot.addHook("afterScrollVertically", function () {
+    var countRows = hot.countRows();
+    if (window.autoScroll && countRows > 0 && countRows < 1000 && window.skip < countRows && hot.rowOffset() + hot.countRenderedRows() == countRows) {
+      setTimeout(function () { getData(hot) }, 1000);
+    }
+  });
+
+  function getData(hot) {
+    if (window.skip === hot.countRows()) return;
+    window.skip = hot.countRows();
+    var script = document.createElement("script");
+    script.setAttribute("type", "text/javascript");
+    //script.setAttribute("src", location.href.replace(/.html\??/, '.jsonp?callback=render&'));
+    script.setAttribute("src", location.href.replace(/.html\??/, '.jsonp?callback=render&').replace(/skip=\d*/, '') + '&skip=' + window.skip);
+    document.getElementsByTagName("head")[0].appendChild(script);
+  };
+
+  getData({ countRows: function () { return 0 } });
+</script>
+</body>
+
+</html>

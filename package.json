@@ -1,74 +1,54 @@
 {
-  "name": "rested",
+  "name": "rested-daas",
   "description": "{REST}ed; {REST}ful Enterprise Data-as-a-Service (DaaS)",
-  "author": {
-    "name": "Zidan, M",
-    "email": "798776+izidan@users.noreply.github.com",
-    "url": "https://github.com/izidan"
-  },
-  "homepage": "https://github.com/izidan/rested",
-  "version": "2.1.9",
-  "scripts": {
-    "test": "./node_modules/.bin/jest --runInBand",
-    "coverage": "./node_modules/.bin/jest --runInBand --coverage"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/izidan/rested.git"
-  },
-  "bugs": {
-    "email": "798776+izidan@users.noreply.github.com",
-    "url": "https://github.com/izidan/rested/issues/new"
-  },
-  "publishConfig": {
-    "registry": "http://registry.npmjs.org/"
-  },
-  "license": "MIT",
-  "keywords": [
-    "daas",
-    "rest",
-    "restful",
-    "api",
-    "express",
-    "mongoose",
-    "baucis",
-    "swagger",
-    "openapi",
-    "schema",
-    "schemata",
-    "model",
-    "mongo",
-    "mongodb",
-    "web",
-    "http"
-  ],
+  "license": "UNLICENSED",
+  "repository": "https://rested.azurewebsite.net",
   "dependencies": {
-    "baucis-links": "^1.0.1",
-    "csv-stringify": "^5.3.3",
-    "deco": "0.12.3",
-    "event-stream": "^4.0.1",
-    "flat": "^4.1.0",
-    "from2": "^2.3.0",
-    "http-errors": "^1.7.3",
-    "js-yaml": "^3.13.1",
-    "jxon": "^2.0.0-beta.5",
-    "msgpack-lite": "^0.1.26",
-    "semver": "^6.3.0",
-    "through2": "^3.0.1"
-  },
-  "peerDependencies": {
-    "mongoose": "5.x",
-    "express": "4.x"
-  },
-  "devDependencies": {
-    "@shelf/jest-mongodb": "^1.1.1",
     "async": "^3.1.0",
-    "body-parser": "^1.19.0",
-    "csv-parser": "^2.3.1",
+    "colors": "^1.3.3",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
+    "csv-stringify": "^6.4.0",
+    "debug": "^4.1.1",
+    "dotenv": "^16.1.4",
+    "event-stream": "^4.0.1",
     "express": "^4.17.1",
-    "jest": "^24.9.0",
-    "mongoose": "^5.7.5",
-    "parse-link-header": "^1.0.1",
-    "supertest": "^4.0.2"
+    "express-urlrewrite": "^2.0.0",
+    "flat": "^5.0.2",
+    "js-yaml": "^4.1.0",
+    "jxon": "^2.0.0-beta.5",
+    "lodash": "^4.17.15",
+    "minify": "^4.1.0",
+    "minimist": "^1.2.0",
+    "mkdirp": "^3.0.1",
+    "module-alias": "^2.2.1",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.26",
+    "mongoose": "^5.6.8",
+    "msgpack-lite": "^0.1.26",
+    "request": "^2.88.0",
+    "rest-error": "^1.3.1",
+    "rested": "github:izidan/rested",
+    "semver": "^7.3.7",
+    "underscore": "^1.9.1"
+  },
+  "optionalDependencies": {
+    "elasticsearch": "^16.3.0",
+    "mongoosastic": "^5.0.0",
+    "morgan": "^1.9.1",
+    "winston": "^3.2.1",
+    "winston-mongodb": "^5.0.0"
+  },
+  "main": "server.js",
+  "engines": {
+    "node": "~16.x"
+  },
+  "_moduleAliases": {
+    "mongoose-aliasfield": "nody_modules/mongoose-aliasfield",
+    "baucis-swagger": "nody_modules/baucis-swagger"
+  },
+  "scripts": {
+    "xsd2json": "xsd2json.sh"
   }
 }
